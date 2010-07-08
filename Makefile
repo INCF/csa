@@ -6,7 +6,7 @@ debdir = dist/csa-$(PACKAGE_VERSION)
 .PHONY: dist debian-source debian-package
 
 dist:
-	./setup.py sdist
+	python setup.py sdist
 
 debian-source: dist
 	@test ! -e $(debdir) || ( echo "*** Remove directory dist/csa-${PACKAGE_VERSION}" && exit 1 )
@@ -16,4 +16,4 @@ debian-source: dist
 	cp -pr debian $(debdir)
 
 debian-package: debian-source
-	( cd $(debdir) && dpkg-buildpackage '-mMikael Djurfeldt <mdj@debian.org>' -rfakeroot && cd ../.. && rm -r $(debdir) )
+	( cd $(debdir) && dpkg-buildpackage '-mMikael Djurfeldt <mdj@debian.org>' -rfakeroot && cd ../.. && rm -rf $(debdir) )
