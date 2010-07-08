@@ -1,0 +1,51 @@
+2010-06-29  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* elementary.py (partition): New function.
+
+	* _elementary.py (MaskPartition, SampleNRandomMask): New masks.
+
+	* _misc.py (Random): Implemenented parameter N.
+
+	* connset.py (IntervalSetMask.multisetSum): New method.
+
+	* intervalset.py (IntervalSet.union): New method.
+
+2010-06-27  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* _misc.py (ValueSetRandomMask): New mask.  Random operator now
+	implemented.
+
+	* misc.py (gaussian): New operator.
+
+2010-06-25  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* connset.py (ExplicitCSet): New class which captures value sets
+	before coercion so that these can be returned by value (c, k) when
+	possible.
+
+	* elementary.py (cset): Use ExplicitCSet.
+
+2010-06-24  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* elementary.py (random): Instance of Random operator.
+
+	* _misc.py (Random): New operator.
+
+	* _elementary.py (RandomMask): Renamed from Random.
+
+2010-06-19  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* connset.py (Mask.__mul__): Only use commutativity if second
+	operand is a ConnectionSet.
+
+	* connset.py, _elementary.py, _misc.py: Restructured handling of
+	bounds.  Raise RunTime exception on attempt to retrieve iterator
+	over infinite mask.
+
+	* connset.py, elementary.py (ExplicitMask): Renamed from FiniteMask.
+
+2010-06-18  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* Start of ChangeLog
+
+

@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+override_dh_auto_test:
+ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+	set -e; \
+	for python in $(shell pyversions -r); do \
+		$$python /usr/bin/nosetests test/test_csa.py; \
+	done
+endif
+
+%:
+	dh $@ 

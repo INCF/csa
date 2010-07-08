@@ -1,0 +1,5 @@
+python-csa (0.0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #588360)
+
+ -- Mikael Djurfeldt <mdj@debian.org>  Wed, 07 Jul 2010 17:45:19 +0200
