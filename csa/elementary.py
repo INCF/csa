@@ -46,12 +46,6 @@ def value (obj, k):
 def cross (set0, set1):
     return _cs.IntervalSetMask (set0, set1)
 
-def partition (c, masks, selected):
-    if isinstance (c, _cs.Mask):
-        return _elementary.MaskPartition (c, masks, selected)
-    elif isinstance (c, _cs.ConnectionSet):
-        return _cs.ConnectionSet (_elementary.CSetPartition (c.c, masks, selected))
-
 # Elementary masks
 #
 empty = _cs.ExplicitMask ([])
@@ -61,6 +55,14 @@ full = cross (xrange (_sys.maxint), xrange (_sys.maxint))
 oneToOne = _elementary.OneToOne ()
 
 random = _misc.Random ()
+
+# Support for parallel simulator
+#
+def partition (c, masks, selected):
+    if isinstance (c, _cs.Mask):
+        return _elementary.MaskPartition (c, masks, selected)
+    elif isinstance (c, _cs.ConnectionSet):
+        return _cs.ConnectionSet (_elementary.CSetPartition (c.c, masks, selected))
 
 # Utilities
 #
