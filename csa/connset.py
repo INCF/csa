@@ -17,6 +17,8 @@
 #
 
 import sys
+import copy
+
 import intervalset
 import valueset
 
@@ -52,19 +54,15 @@ class CSet:
         return len (self.mask ())
 
     def __iter__ (self):
-        if isFinite (self.mask ()):
-            state = {}
-            self.startIteration (state)
-            (low0, high0, low1, high1) = self.bounds ()
-            return self.iterator (low0, high0, low1, high1, state)
-        else:
-            raise RuntimeError, 'attempt to retrieve iterator over infinite connection-set'
+        raise RuntimeError, 'attempt to retrieve iterator over infinite connection-set'
 
     def bounds (self):
         return self.mask ().bounds ()
 
     def startIteration (self, state):
-        self.mask ().startIteration (state)
+        obj = copy.copy (self)
+        obj._mask = self.mask ().startIteration (state)
+        return obj
 
     def iterator (self, low0, high0, low1, high1, state):
         for (i, j) in self._mask.iterator (low0, high0, low1, high1, state):
@@ -223,7 +221,8 @@ class Mask (CSet):
         return self.complement ()
 
     def startIteration (self, state):
-        pass
+        # default action:
+        return self
 
     def iterator (self, low0, high0, low1, high1, state):
         return NotImplemented
@@ -263,9 +262,9 @@ class Finite ():
 
     def __iter__ (self):
         state = {}
-        self.startIteration (state)
+        obj = self.startIteration (state)
         (low0, high0, low1, high1) = self.bounds ()
-        return self.iterator (low0, high0, low1, high1, state)
+        return obj.iterator (low0, high0, low1, high1, state)
 
 
 class FiniteMask (Finite, Mask):
@@ -283,6 +282,31 @@ class FiniteMask (Finite, Mask):
         return low0 > self.low0 or high0 < self.high0 \
                or low1 > self.low1 or high1 < self.high1
 
+# not used
+class NoParIterator ():
+    def __init__ (self):
+        self.subIterator = False
+
+    def iterator (self, low0, high0, low1, high1, state):
+        print low0, high0, low1, high1
+        if not self.subIterator:
+            self.subIterator = self.noParIterator (state)
+            self.lastC = self.subIterator.next ()
+        c = self.lastC
+        while c[1] < low1:
+            c = self.subIterator.next ()
+        while c[1] < high1:
+            j = c[1]
+            while c[1] == j and c[0] < low0:
+                c = self.subIterator.next ()
+            while c[1] == j and c[0] < high0:
+                print c
+                yield c
+                c = self.subIterator.next ()
+            while c[1] == j:
+                c = self.subIterator.next ()
+        self.lastC = c
+
 
 class BinaryMask (Mask):
     def __init__ (self, c1, c2):
@@ -291,8 +315,10 @@ class BinaryMask (Mask):
         self.c2 = c2
 
     def startIteration (self, state):
-        self.c1.startIteration (state)
-        self.c2.startIteration (state)
+        obj = copy.copy (self)
+        obj.c1 = self.c1.startIteration (state)
+        obj.c2 = self.c2.startIteration (state)
+        return obj
 
 
 class MaskIntersection (BinaryMask):
@@ -523,7 +549,9 @@ class ISetBoundedMask (FiniteMask):
             self.high1 = self.set1.max () + 1
 
     def startIteration (self, state):
-        self.subMask.startIteration (state)
+        obj = copy.copy (self)
+        obj.subMask = self.subMask.startIteration (state)
+        return obj
 
     def iterator (self, low0, high0, low1, high1, state):
         if not self.isBoundedBy (low0, high0, low1, high1):
@@ -631,9 +659,9 @@ class BinaryCSet (CSet):
     def makeValueSetMap (self, bounds):
         m = {}
         state = {}
-        self.startIteration (state)
+        obj = self.startIteration (state)
         (low0, high0, low1, high1) = bounds
-        for (i, j, v) in self.iterator (low0, high0, low1, high1, state):
+        for (i, j, v) in obj.iterator (low0, high0, low1, high1, state):
             m[(i, j)] = v
         return m
 

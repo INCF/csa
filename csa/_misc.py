@@ -36,7 +36,7 @@ class Random (_cs.Operator):
         elif N != None:
             assert p == None, \
                    'inconsistent parameters'
-            return _elementary.SampleNRandomMask (N)
+            return _elementary.SampleNRandomOperator (N)
         assert fanIn != None or fanOut != None, 'not implemenented'
         assert False, 'inconsistent parameters'
 
@@ -49,6 +49,7 @@ class ValueSetRandomMask (_cs.Mask):
 
     def startIteration (self, state):
         _random.setstate (self.state)
+        return self
 
     def iterator (self, low0, high0, low1, high1, state):
         for j in xrange (low1, high1):

@@ -58,11 +58,11 @@ random = _misc.Random ()
 
 # Support for parallel simulator
 #
-def partition (c, masks, selected):
+def partition (c, masks, selected, seed = None):
     if isinstance (c, _cs.Mask):
-        return _elementary.MaskPartition (c, masks, selected)
+        return _elementary.MaskPartition (c, masks, selected, seed)
     elif isinstance (c, _cs.ConnectionSet):
-        return _cs.ConnectionSet (_elementary.CSetPartition (c.c, masks, selected))
+        return _cs.ConnectionSet (_elementary.CSetPartition (c.c, masks, selected, seed))
 
 # Utilities
 #

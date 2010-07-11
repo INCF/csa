@@ -18,22 +18,26 @@
 
 import random as _random
 import numpy as _numpy
+import copy
 
 import connset as _cs
 import intervalset as _is
 
 class MaskPartition (_cs.Finite, _cs.Mask):
-    def __init__ (self, mask, partitions, selected):
+    def __init__ (self, mask, partitions, selected, seed):
+        #*fixme* How can we know when this is not necessary?
         self.subMask = partitions[selected] * mask
 
-        domain = _cs.IntervalSetMask ([], [])
-        for m in partitions:
-            assert _cs.isFinite (m), 'partitions must be finite'
-            domain = domain.multisetSum (m)
+        #domain = _cs.IntervalSetMask ([], [])
+        #for m in partitions:
+        #    assert _cs.isFinite (m), 'partitions must be finite'
+        #    domain = domain.multisetSum (m)
         
-        self.state = { 'domain' : domain,
+        self.state = { #'domain' : domain,
                        'partitions' : partitions,
                        'selected' : selected }
+        if seed != None:
+            self.state['seed'] = seed
 
     def bounds (self):
         return self.subMask.bounds ()
@@ -41,10 +45,10 @@ class MaskPartition (_cs.Finite, _cs.Mask):
     def startIteration (self, state):
         for key in self.state:
             state[key] = self.state[key]
-        self.subMask.startIteration (state)
+        return self.subMask.startIteration (state)
 
     def iterator (self, low0, high0, low1, high1, state):
-        return self.subMask.iterator (low0, high0, low1, high1, state)
+        raise RuntimeError, 'iterator called on wrong object'
 
 
 class OneToOne (_cs.Mask):
@@ -64,6 +68,7 @@ class ConstantRandomMask (_cs.Mask):
 
     def startIteration (self, state):
         _random.setstate (self.state)
+        return self
 
     def iterator (self, low0, high0, low1, high1, state):
         for j in xrange (low1, high1):
@@ -72,58 +77,74 @@ class ConstantRandomMask (_cs.Mask):
                     yield (i, j)
 
 
-class SampleNRandomMask (_cs.Mask):
+class SampleNRandomOperator (_cs.Mask):
+    def __init__ (self, N):
+        self.N = N
+
+    def __mul__ (self, other):
+        assert isinstance (other, _cs.Finite) \
+               and isinstance (other, _cs.Mask), \
+               'expected finite mask'
+        return SampleNRandomMask (self.N, other)
+
+class SampleNRandomMask (_cs.Finite,_cs.Mask):
     # The algorithm based on first sampling the number of connections
     # per partition has been arrived at through discussions with Hans
     # Ekkehard Plesser.
     #
-    def __init__ (self, N):
+    def __init__ (self, N, mask):
         _cs.Mask.__init__ (self)
         self.N = N
+        assert isinstance (mask, _cs.IntervalSetMask), \
+               'SampleNRandomMask only operates on IntervalSetMask:s'
+        self.mask = mask
         self.randomState = _random.getstate ()
         self.npRandomState = _numpy.random.get_state ()
-        # The following yields the same result on all processes.
-        # We should add a seed function to the CSA.
-        _numpy.random.seed (hash ('SampleNRandomMask'))
-        self.npCommonState = _numpy.random.get_state ()
+
+    def bounds (self):
+        return self.mask.bounds ()
 
     def startIteration (self, state):
+        obj = copy.copy (self)  # local state: N, N0, perTarget, sources
         _random.setstate (self.randomState)
-        if not 'partitions' in state:
-            state['N'] = self.N
-        else:
-            _numpy.random.set_state (self.npCommonState)
-            sizes = map (len, state['partitions'])
+        if 'partitions' in state:
+            partitions = map (self.mask.intersection, state['partitions'])
+            sizes = map (len, partitions)
             total = sum (sizes)
+            
+            # The following yields the same result on all processes.
+            # We should add a seed function to the CSA.
+            if 'seed' in state:
+                seed = state['seed']
+            else:
+                seed = 'SampleNRandomMask'
+            _numpy.random.seed (hash (seed))
+            
             N = _numpy.random.multinomial (self.N, _numpy.array (sizes) \
                                            / float (total))
-            state['N'] = N[state['selected']]
-            _numpy.random.set_state (self.npRandomState)
+            obj.N = N[state['selected']]
+            obj.mask = partitions[state['selected']]
+            assert isinstance (obj.mask, _cs.IntervalSetMask), \
+                   'SampleNRandomMask iterator only handles IntervalSetMask partitions'
+        obj.mask = obj.mask.startIteration (state)
+        obj.N0 = len (obj.mask.set0)
+        N1 = len (obj.mask.set1)
+        _numpy.random.set_state (self.npRandomState)
+        obj.perTarget = _numpy.random.multinomial (obj.N, [1.0 / N1] * N1)
+        obj.sources = []
+        for i in self.mask.set0:
+            obj.sources.append (i)
+        return obj
 
     def iterator (self, low0, high0, low1, high1, state):
-        N = state['N']
-        if not 'partitions' in state:
-            set0 = _is.IntervalSet ((low0, high0 - 1))
-            set1 = _is.IntervalSet ((low1, high1 - 1))
-        else:
-            mask = state['partitions'][state['selected']]
-            assert isinstance (mask, _cs.IntervalSetMask), \
-                   'SampleNRandomMask iterator only handles IntervalSetMask partitions'
-            set0 = mask.set0
-            set1 = mask.set1
-
-        N0 = set0.nIntegers
-        N1 = set1.nIntegers
-        perTarget = _numpy.random.multinomial (N, [1.0 / N1] * N1)
-        sources = []
-        for i in set0:
-            sources.append (i)
-
-        m = 0
-        for j in set1:
+        m = self.mask.set1.count (0, low1)
+        _random.seed (_random.getrandbits (32) + m)
+        for j in self.mask.set1.boundedIterator (low1, high1):
             s = []
-            for k in xrange (0, perTarget[m]):
-                s.append (sources[_random.randint (0, N0 - 1)])
+            for k in xrange (0, self.perTarget[m]):
+                i = self.sources[_random.randint (0, self.N0 - 1)]
+                if low0 <= i and i < high0:
+                    s.append (i)
             s.sort ()
             for i in s:
                 yield (i, j)

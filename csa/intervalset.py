@@ -73,6 +73,30 @@ class IntervalSet:
     def intervalIterator (self):
         return iter (self.intervals)
 
+    def boundedIterator (self, low, high):
+        iterator = iter (self.intervals)
+        i = iterator.next ()
+        while i[1] < low:
+            i = iterator.next ()
+        while i[0] < high:
+            for e in xrange (max (low, i[0]), min (i[1] + 1, high)):
+                yield e
+            i = iterator.next ()
+
+    def count (self, low, high):
+        iterator = iter (self.intervals)
+        c = 0
+        try:
+            i = iterator.next ()
+            while i[1] < low:
+                i = iterator.next ()
+            while i[0] < high:
+                c += min (i[1] + 1, high) - max (low, i[0])
+                i = iterator.next ()
+        except StopIteration:
+            pass
+        return c
+
     def min (self):
         return self.intervals[0][0]
 
