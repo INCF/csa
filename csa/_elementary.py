@@ -77,7 +77,7 @@ class ConstantRandomMask (_cs.Mask):
                     yield (i, j)
 
 
-class SampleNRandomOperator (_cs.Mask):
+class SampleNRandomOperator (_cs.Operator):
     def __init__ (self, N):
         self.N = N
 
@@ -86,6 +86,7 @@ class SampleNRandomOperator (_cs.Mask):
                and isinstance (other, _cs.Mask), \
                'expected finite mask'
         return SampleNRandomMask (self.N, other)
+
 
 class SampleNRandomMask (_cs.Finite,_cs.Mask):
     # The algorithm based on first sampling the number of connections
@@ -141,6 +142,104 @@ class SampleNRandomMask (_cs.Finite,_cs.Mask):
         
         if self.isPartitioned and m > 0:
             # "replacement" for a proper random.jumpahead (n)
+            # This is required so that different partitions of this
+            # mask aren't produced using the same stream of random
+            # numbers.
+            _random.seed (_random.getrandbits (32) + m)
+            
+        if self.lastBound0 != (low0, high0):
+            self.lastBound0 = (low0, high0)
+            self.sources = []
+            for i in self.mask.set0.boundedIterator (low0, high0):
+                self.sources.append (i)
+
+        nSources = len (self.sources)
+        for j in self.mask.set1.boundedIterator (low1, high1):
+            s = []
+            for k in xrange (0, self.perTarget[m]):
+                i = _random.randint (0, self.N0 - 1)
+                if i < nSources:
+                    s.append (self.sources[i])
+            s.sort ()
+            for i in s:
+                yield (i, j)
+            m += 1
+
+
+class FanInRandomOperator (_cs.Operator):
+    def __init__ (self, fanIn):
+        self.fanIn = fanIn
+
+    def __mul__ (self, other):
+        assert isinstance (other, _cs.Finite) \
+               and isinstance (other, _cs.Mask), \
+               'expected finite mask'
+        return FanInRandomMask (self.fanIn, other)
+
+
+# This code is copied and modified from SampleNRandomMask
+# *fixme* refactor code and eliminate code duplication
+class FanInRandomMask (_cs.Finite,_cs.Mask):
+    # The algorithm based on first sampling the number of connections
+    # per partition has been arrived at through discussions with Hans
+    # Ekkehard Plesser.
+    #
+    def __init__ (self, fanIn, mask):
+        _cs.Mask.__init__ (self)
+        self.fanIn = fanIn
+        assert isinstance (mask, _cs.IntervalSetMask), \
+               'FanInRandomMask only operates on IntervalSetMask:s'
+        self.mask = mask
+        self.randomState = _random.getstate ()
+        self.npRandomState = _numpy.random.get_state ()
+
+    def bounds (self):
+        return self.mask.bounds ()
+
+    def startIteration (self, state):
+        obj = copy.copy (self)  # local state: N, N0, perTarget, sources
+        _random.setstate (self.randomState)
+        obj.isPartitioned = False
+        if 'partitions' in state:
+            obj.isPartitioned = True
+            partitions = map (self.mask.intersection, state['partitions'])
+            sizes = map (lambda p: len (p.set0), partitions)
+            sourceDist = _numpy.array (sizes) / float (sum (sizes))
+            
+            # The following yields the same result on all processes.
+            # We should add a seed function to the CSA.
+            if 'seed' in state:
+                seed = state['seed']
+            else:
+                seed = 'FanInRandomMask'
+            _numpy.random.seed (hash (seed))
+
+            selected = state['selected']
+            obj.mask = partitions[selected]
+            assert isinstance (obj.mask, _cs.IntervalSetMask), \
+                   'SampleNRandomMask iterator only handles IntervalSetMask partitions'
+        obj.mask = obj.mask.startIteration (state)
+        obj.N0 = len (obj.mask.set0)
+        obj.lastBound0 = False
+        N1 = len (obj.mask.set1)
+        if obj.isPartitioned:
+            _numpy.random.set_state (self.npRandomState)
+            obj.perTarget = []
+            for k in xrange (N1):
+                dist = _numpy.random.multinomial (self.fanIn, sourceDist)
+                obj.perTarget.append (dist[selected])
+        else:
+            obj.perTarget = [self.fanIn] * N1
+        return obj
+
+    def iterator (self, low0, high0, low1, high1, state):
+        m = self.mask.set1.count (0, low1)
+        
+        if self.isPartitioned and m > 0:
+            # "replacement" for a proper random.jumpahead (n)
+            # This is required so that different partitions of this
+            # mask aren't produced using the same stream of random
+            # numbers.
             _random.seed (_random.getrandbits (32) + m)
             
         if self.lastBound0 != (low0, high0):

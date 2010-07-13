@@ -38,7 +38,11 @@ class Random (_cs.Operator):
             assert p == None, \
                    'inconsistent parameters'
             return _elementary.SampleNRandomOperator (N)
-        assert fanIn != None or fanOut != None, 'not implemenented'
+        elif fanIn != None:
+            assert p == None, \
+                   'inconsistent parameters'
+            return _elementary.FanInRandomOperator (fanIn)
+        assert fanOut != None, 'not implemenented'
         assert False, 'inconsistent parameters'
 
 

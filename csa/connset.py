@@ -573,7 +573,7 @@ class ISetBoundedMask (FiniteMask):
         while i1[1] < low1:
             i1 = iterator1.next ()
         while i1[0] < high1:
-            i1 = (max (i1[0], low1), min (i1[1] + 1, high1))
+            i1 = (max (i1[0], low1), min (i1[1], high1 - 1))
             iterator0 = self.set0.intervalIterator ()
             try:
                 i0 = iterator0.next ()
