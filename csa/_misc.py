@@ -18,6 +18,7 @@
 
 import math as _math
 import random as _random
+import copy
 
 import connset as _cs
 import valueset as _vs
@@ -152,3 +153,37 @@ class BlockMask (_cs.Mask):
                         for ii in xrange (max (self.M * k, low0),
                                           min (self.M * (k + 1), high0)):
                             yield (ii, jj)
+
+
+class Transpose (_cs.Operator):
+    def __mul__ (self, other):
+        c = _cs.coerceCSet (other)
+        if isinstance (c, _cs.Mask):
+            # iterators of a real implementation can return both pre-order
+            # and post-order
+            assert _cs.isFinite (c), 'transpose currently only supports finite masks'
+            return TransposeMask (other)
+        else:
+            #*fixme* implement
+            return _cs.ConnectionSet (TransposeCSet (other))
+
+
+class TransposeMask (_cs.Finite, _cs.Mask):
+    def __init__ (self, mask):
+        self.subMask = mask
+
+    def bounds (self):
+        (low0, high0, low1, high1) = self.subMask.bounds ()
+        return (low1, high1, low0, high0)
+
+    def startIteration (self, state):
+        obj = copy.copy (self)
+        obj.subMask = self.subMask.startIteration (state)
+        return obj
+
+    def iterator (self, low0, high0, low1, high1, state):
+        ls = []
+        for x in self.subMask.iterator (low1, high1, low0, high0, state):
+            ls.append ((x[1], x[0]))
+        ls.sort (_cs.cmpPostOrder)
+        return iter (ls)

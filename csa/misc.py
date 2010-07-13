@@ -27,4 +27,6 @@ def gaussian (sigma, cutoff):
 def block (M, N = None):
     return _misc.Block (M, M if N == None else N)
 
+transpose = _misc.Transpose ()
+
 #del _misc                               # not for export

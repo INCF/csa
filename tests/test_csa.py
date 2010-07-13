@@ -19,6 +19,7 @@
 from __future__ import with_statement
 
 import sys
+import numpy
 
 from csa import *
 
@@ -35,6 +36,12 @@ class TestCSA(unittest.TestCase):
 
     def assertEqual30x30 (self, cs, ls, msg):
         self.assertEqualCS (cross ((0, 29), (0, 29)) * cs, ls, msg)
+
+    def sampleN (self, func, dims, N):
+        data = numpy.zeros ((N,) + dims)
+        for k in xrange (N):
+            data[k] = func ()
+        return numpy.mean (data, 0)
 
 
 class TestElementary (TestCSA):
@@ -80,6 +87,37 @@ class TestElementary (TestCSA):
                           '0 \t0\n1 \t1\n2 \t2\n3 \t3\n',
                           'tabulate malfunctioning')
 
+
+    def partitionRandomN (self):
+        K = 5
+        N = 3 * K
+        R = (0, N - 1)
+        R0 = (0, K - 1)
+        R2 = (2 * K, 3 * K - 1)
+        c = random (N = N) * cross (R, R)
+        c0 = partition (c, [cross (R, R0), cross (R, R2)], 0)
+        c1 = partition (c, [cross (R, R0), cross (R, R2)], 1)
+        c2 = transpose * partition (c, [cross (R0, R), cross (R2, R)], 0)
+        c3 = transpose * partition (c, [cross (R0, R), cross (R2, R)], 1)
+        res = numpy.zeros ((4 * N, K))
+        row = 0
+        for (c, offset) in [(c0, 0), (c1, 2 * K), (c2, 0), (c3, 2 * K)]:
+            a = numpy.zeros ((N, K))
+            for (i, j) in c:
+                j -= offset
+                if 0 <= i < N and 0 <= j < K:
+                    a[i, j] = 1
+                else:
+                    self.fail ('connection outside mask')
+            res[row:row + N, :] = a
+            row += N
+        return 2.0 * K * res           # normalization
+
+    def test_partitionRandomN (self):
+        res = self.sampleN (self.partitionRandomN, (4 * 15, 5), 1000)
+        for x in res.flatten ():
+            self.assertAlmostEqual (x, 1.0, 0, 'maybe wrong statistics %g != 1.' % x)
+
 class TestOperators (TestCSA):
     def test_difference (self):
         # Test difference
@@ -88,11 +126,11 @@ class TestOperators (TestCSA):
                             'difference operator')
 
 
-def test_main():
+def main():
     test_support.run_unittest(TestElementary,
                               TestOperators
                              )
 
 if __name__ == '__main__':
-    test_main()
+    main()
 

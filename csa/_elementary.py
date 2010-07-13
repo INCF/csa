@@ -128,17 +128,22 @@ class SampleNRandomMask (_cs.Finite,_cs.Mask):
                    'SampleNRandomMask iterator only handles IntervalSetMask partitions'
         obj.mask = obj.mask.startIteration (state)
         obj.N0 = len (obj.mask.set0)
+        obj.lastBound0 = False
         N1 = len (obj.mask.set1)
         _numpy.random.set_state (self.npRandomState)
         obj.perTarget = _numpy.random.multinomial (obj.N, [1.0 / N1] * N1)
-        obj.sources = []
-        for i in self.mask.set0:
-            obj.sources.append (i)
         return obj
 
     def iterator (self, low0, high0, low1, high1, state):
         m = self.mask.set1.count (0, low1)
-        _random.seed (_random.getrandbits (32) + m)
+        if m > 0:
+            # "replacement" for a proper random.jumpahead (n)
+            _random.seed (_random.getrandbits (32) + m)
+        if self.lastBound0 != (low0, high0):
+            self.lastBound0 = (low0, high0)
+            self.sources = []
+            for i in self.mask.set0.boundedIterator (low0, high0):
+                self.sources.append (i)
         for j in self.mask.set1.boundedIterator (low1, high1):
             s = []
             for k in xrange (0, self.perTarget[m]):
