@@ -1,0 +1,16 @@
+* Go through how RNG:s are seeded, especially when one CS is used
+  repeatedly as component of other CSs
+
+* Go through use of and rename classes Finite and FiniteMask.
+
+* Avoid intersection at top of MaskPartition
+
+* Implement CSsetPartition
+
+* Implement lazy evaluation in BanryCSet.makeValueSetMap
+
+* eliminate _names from _files
+
+* Implement SUbMaskContainer (startIteration etc)
+
+* eliminate code duplication in _elementary.FanInRandomMask
