@@ -87,9 +87,8 @@ class TestElementary (TestCSA):
                           '0 \t0\n1 \t1\n2 \t2\n3 \t3\n',
                           'tabulate malfunctioning')
 
-
     def partitionRandomN (self):
-        K = 5
+        K = self.K
         N = 3 * K
         R = (0, N - 1)
         R0 = (0, K - 1)
@@ -114,7 +113,37 @@ class TestElementary (TestCSA):
         return 2.0 * K * res           # normalization
 
     def test_partitionRandomN (self):
-        res = self.sampleN (self.partitionRandomN, (4 * 15, 5), 1000)
+        self.K = 5
+        res = self.sampleN (self.partitionRandomN, (12 * self.K, self.K), 1000)
+        for x in res.flatten ():
+            self.assertAlmostEqual (x, 1.0, 0, 'maybe wrong statistics %g != 1.' % x)
+    def intersectionRandomN (self):
+        K = self.K
+        N = 3 * K
+        R = (0, N - 1)
+        R0 = (0, K - 1)
+        R2 = (2 * K, 3 * K - 1)
+        c = random (N = N) * cross (R, R)
+        c0 = cross (R, [R0, R2]) * c
+        c1 = transpose * (cross ([R0, R2], R) * c)
+        res = numpy.zeros ((2 * N, 2 * K))
+        row = 0
+        for c in [c0, c1]:
+            a = numpy.zeros ((N, 2 * K))
+            for (i, j) in c:
+                if 0 <= i < N and 0 <= j < K:
+                    a[i, j] = 1
+                elif 0 <= i < N and 2 * K <= j < 3 * K:
+                    a[i, j - K] = 1
+                else:
+                    self.fail ('connection outside mask')
+            res[row:row + N, :] = a
+            row += N
+        return N * res           # normalization
+
+    def test_intersectionRandomN (self):
+        self.K = 5
+        res = self.sampleN (self.intersectionRandomN, (6 * self.K, 2 * self.K), 1000)
         for x in res.flatten ():
             self.assertAlmostEqual (x, 1.0, 0, 'maybe wrong statistics %g != 1.' % x)
 

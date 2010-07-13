@@ -107,7 +107,9 @@ class SampleNRandomMask (_cs.Finite,_cs.Mask):
     def startIteration (self, state):
         obj = copy.copy (self)  # local state: N, N0, perTarget, sources
         _random.setstate (self.randomState)
+        obj.isPartitioned = False
         if 'partitions' in state:
+            obj.isPartitioned = True
             partitions = map (self.mask.intersection, state['partitions'])
             sizes = map (len, partitions)
             total = sum (sizes)
@@ -136,20 +138,24 @@ class SampleNRandomMask (_cs.Finite,_cs.Mask):
 
     def iterator (self, low0, high0, low1, high1, state):
         m = self.mask.set1.count (0, low1)
-        if m > 0:
+        
+        if self.isPartitioned and m > 0:
             # "replacement" for a proper random.jumpahead (n)
             _random.seed (_random.getrandbits (32) + m)
+            
         if self.lastBound0 != (low0, high0):
             self.lastBound0 = (low0, high0)
             self.sources = []
             for i in self.mask.set0.boundedIterator (low0, high0):
                 self.sources.append (i)
+
+        nSources = len (self.sources)
         for j in self.mask.set1.boundedIterator (low1, high1):
             s = []
             for k in xrange (0, self.perTarget[m]):
-                i = self.sources[_random.randint (0, self.N0 - 1)]
-                if low0 <= i and i < high0:
-                    s.append (i)
+                i = _random.randint (0, self.N0 - 1)
+                if i < nSources:
+                    s.append (self.sources[i])
             s.sort ()
             for i in s:
                 yield (i, j)
