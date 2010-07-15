@@ -42,7 +42,10 @@ class Random (_cs.Operator):
             assert p == None, \
                    'inconsistent parameters'
             return _elementary.FanInRandomOperator (fanIn)
-        assert fanOut != None, 'not implemenented'
+        elif fanOut != None:
+            assert p == None, \
+                   'inconsistent parameters'
+            return _elementary.FanOutRandomOperator (fanOut)
         assert False, 'inconsistent parameters'
 
 
@@ -163,31 +166,41 @@ class Transpose (_cs.Operator):
     def __mul__ (self, other):
         c = _cs.coerceCSet (other)
         if isinstance (c, _cs.Mask):
-            # iterators of a real implementation can return both pre-order
-            # and post-order
-            assert _cs.isFinite (c), 'transpose currently only supports finite masks'
-            return TransposeMask (other)
+            return other.transpose ()
         else:
-            #*fixme* implement
-            return _cs.ConnectionSet (TransposeCSet (other))
+            return _cs.ConnectionSet (other.transpose ())
 
 
-class TransposeMask (_cs.Finite, _cs.Mask):
+class Fix (_cs.Operator):
+    def __mul__ (self, other):
+        c = _cs.coerceCSet (other)
+        if isinstance (c, _cs.Mask):
+            return FixedMask (other)
+        else:
+            return _cs.ConnectionSet (FixedCSet (other))
+
+
+class FixedMask (_cs.FiniteMask):
     def __init__ (self, mask):
-        self.subMask = mask
-
-    def bounds (self):
-        (low0, high0, low1, high1) = self.subMask.bounds ()
-        return (low1, high1, low0, high0)
-
-    def startIteration (self, state):
-        obj = copy.copy (self)
-        obj.subMask = self.subMask.startIteration (state)
-        return obj
+        _cs.FiniteMask.__init__ (self)
+        ls = []
+        for c in mask:
+            ls.append (c)
+        self.connections = ls
+        targets = map (_cs.target, ls)
+        self.low0 = min (ls)[0]
+        self.high0 = max (ls)[0] + 1
+        self.low1 = min (targets)
+        self.high1 = max (targets) + 1
 
     def iterator (self, low0, high0, low1, high1, state):
-        ls = []
-        for x in self.subMask.iterator (low1, high1, low0, high0, state):
-            ls.append ((x[1], x[0]))
-        ls.sort (_cs.cmpPostOrder)
-        return iter (ls)
+        if not self.isBoundedBy (low0, high0, low1, high1):
+            return iter (self.connections)
+        else:
+            return self.boundedIterator (low0, high0, low1, high1)
+
+    def boundedIterator (self, low0, high0, low1, high1):
+        for c in self.connections:
+            if low0 <= c[0] and c[0] < high0 \
+               and low1 <= c[1] and c[1] < high1:
+                yield c

@@ -46,6 +46,8 @@ def value (obj, k):
 def cross (set0, set1):
     return _cs.IntervalSetMask (set0, set1)
 
+N = (0,_sys.maxint - 1)
+
 # Elementary masks
 #
 empty = _cs.ExplicitMask ([])
@@ -60,9 +62,9 @@ random = _misc.Random ()
 #
 def partition (c, masks, selected, seed = None):
     if isinstance (c, _cs.Mask):
-        return _elementary.MaskPartition (c, masks, selected, seed)
+        return _cs.MaskPartition (c, masks, selected, seed)
     elif isinstance (c, _cs.ConnectionSet):
-        return _cs.ConnectionSet (_elementary.CSetPartition (c.c, masks, selected, seed))
+        return _cs.ConnectionSet (_cs.CSetPartition (c.c, masks, selected, seed))
 
 # Utilities
 #

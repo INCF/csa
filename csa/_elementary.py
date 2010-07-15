@@ -23,33 +23,6 @@ import copy
 import connset as _cs
 import intervalset as _is
 
-class MaskPartition (_cs.Finite, _cs.Mask):
-    def __init__ (self, mask, partitions, selected, seed):
-        #*fixme* How can we know when this is not necessary?
-        self.subMask = partitions[selected] * mask
-
-        #domain = _cs.IntervalSetMask ([], [])
-        #for m in partitions:
-        #    assert _cs.isFinite (m), 'partitions must be finite'
-        #    domain = domain.multisetSum (m)
-        
-        self.state = { #'domain' : domain,
-                       'partitions' : partitions,
-                       'selected' : selected }
-        if seed != None:
-            self.state['seed'] = seed
-
-    def bounds (self):
-        return self.subMask.bounds ()
-
-    def startIteration (self, state):
-        for key in self.state:
-            state[key] = self.state[key]
-        return self.subMask.startIteration (state)
-
-    def iterator (self, low0, high0, low1, high1, state):
-        raise RuntimeError, 'iterator called on wrong object'
-
 
 class OneToOne (_cs.Mask):
     def __init__ (self):
@@ -203,8 +176,6 @@ class FanInRandomMask (_cs.Finite,_cs.Mask):
         if 'partitions' in state:
             obj.isPartitioned = True
             partitions = map (self.mask.intersection, state['partitions'])
-            sizes = map (lambda p: len (p.set0), partitions)
-            sourceDist = _numpy.array (sizes) / float (sum (sizes))
             
             # The following yields the same result on all processes.
             # We should add a seed function to the CSA.
@@ -221,15 +192,20 @@ class FanInRandomMask (_cs.Finite,_cs.Mask):
         obj.mask = obj.mask.startIteration (state)
         obj.N0 = len (obj.mask.set0)
         obj.lastBound0 = False
-        N1 = len (obj.mask.set1)
         if obj.isPartitioned:
             _numpy.random.set_state (self.npRandomState)
             obj.perTarget = []
-            for k in xrange (N1):
+            for j in obj.mask.set1:
+                size = 0
+                sourceDist = _numpy.zeros (len (partitions))
+                for k in xrange (len (partitions)):
+                    if j in partitions[k].set1:
+                        sourceDist[k] = len (partitions[k].set0)
+                sourceDist /= sum (sourceDist)
                 dist = _numpy.random.multinomial (self.fanIn, sourceDist)
                 obj.perTarget.append (dist[selected])
         else:
-            obj.perTarget = [self.fanIn] * N1
+            obj.perTarget = [self.fanIn] * len (obj.mask.set1)
         return obj
 
     def iterator (self, low0, high0, low1, high1, state):
@@ -259,3 +235,14 @@ class FanInRandomMask (_cs.Finite,_cs.Mask):
             for i in s:
                 yield (i, j)
             m += 1
+
+
+class FanOutRandomOperator (_cs.Operator):
+    def __init__ (self, fanOut):
+        self.fanOut = fanOut
+
+    def __mul__ (self, other):
+        assert isinstance (other, _cs.Finite) \
+               and isinstance (other, _cs.Mask), \
+               'expected finite mask'
+        return _cs.TransposedMask (FanInRandomMask (self.fanOut, other))

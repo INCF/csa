@@ -148,6 +148,12 @@ ConnectionSet.iterators = [ ConnectionSet.iter0, \
 
 # Some helper functions
 
+def source (x):
+    return x[0]
+
+def target (x):
+    return x[1]
+
 def isNumber (x):
     return isinstance (x, (int, long, float, complex))
 
@@ -178,6 +184,9 @@ def isEmpty (x):
         return False
     except StopIteration:
         return True
+
+def transpose (obj):
+    return obj.transpose ()
 
 
 # This is the fundamental mask class
@@ -220,6 +229,11 @@ class Mask (CSet):
     def __invert__ (self):
         return self.complement ()
 
+    def transpose (self):
+        assert isFinite (self), \
+               'transpose currently only supports finite masks'
+        return TransposedMask (self)
+
     def startIteration (self, state):
         # default action:
         return self
@@ -261,7 +275,7 @@ class Finite ():
                 min (b1[2], b2[2]), max (b1[3], b2[3]))
 
     def __iter__ (self):
-        state = {}
+        state = State ()
         obj = self.startIteration (state)
         (low0, high0, low1, high1) = self.bounds ()
         return obj.iterator (low0, high0, low1, high1, state)
@@ -300,7 +314,6 @@ class NoParIterator ():
             while c[1] == j and c[0] < low0:
                 c = self.subIterator.next ()
             while c[1] == j and c[0] < high0:
-                print c
                 yield c
                 c = self.subIterator.next ()
             while c[1] == j:
@@ -360,6 +373,7 @@ class MaskMultisetSum (BinaryMask):
         try:
             (i1, j1) = iter1.next ()
         except StopIteration:
+            (i2, j2) = iter2.next ()
             while True:
                 yield (i2, j2)
                 (i2, j2) = iter2.next ()
@@ -473,6 +487,9 @@ class IntervalSetMask (FiniteMask):
 
     def __len__ (self):
         return len (self.set0) * len (self.set1)
+
+    def transpose (self):
+        return IntervalSetMask (self.set1, self.set0)
 
     def iterator (self, low0, high0, low1, high1, state):
         if not self.isBoundedBy (low0, high0, low1, high1):
@@ -658,7 +675,7 @@ class BinaryCSet (CSet):
 
     def makeValueSetMap (self, bounds):
         m = {}
-        state = {}
+        state = State ()
         obj = self.startIteration (state)
         (low0, high0, low1, high1) = bounds
         for (i, j, v) in obj.iterator (low0, high0, low1, high1, state):
@@ -747,3 +764,67 @@ class CSetMultisetSum (BinaryCSets):
 
 class Operator:
     pass
+
+
+class TransposedMask (Finite, Mask):
+    def __init__ (self, mask):
+        self.subMask = mask
+
+    def transpose (self):
+        return self.subMask
+
+    def bounds (self):
+        (low0, high0, low1, high1) = self.subMask.bounds ()
+        return (low1, high1, low0, high0)
+
+    def startIteration (self, state):
+        obj = copy.copy (self)
+        obj.transposedState = state.transpose ()
+        obj.subMask = self.subMask.startIteration (obj.transposedState)
+        return obj
+
+    def iterator (self, low0, high0, low1, high1, state):
+        ls = []
+        for c in self.subMask.iterator (low1, high1, low0, high0, \
+                                        self.transposedState):
+            ls.append ((c[1], c[0]))
+        ls.sort (cmpPostOrder)
+        return iter (ls)
+
+
+class State (dict):
+    def transpose (self):
+        if 'partitions' in self:
+            s = State (self)
+            s['partitions'] = map (transpose, s['partitions'])
+            return s
+        else:
+            return self
+
+
+class MaskPartition (Finite, Mask):
+    def __init__ (self, mask, partitions, selected, seed):
+        #*fixme* How can we know when this is not necessary?
+        self.subMask = partitions[selected] * mask
+
+        #domain = IntervalSetMask ([], [])
+        #for m in partitions:
+        #    assert isFinite (m), 'partitions must be finite'
+        #    domain = domain.multisetSum (m)
+        
+        self.state = { #'domain' : domain,
+                       'partitions' : partitions,
+                       'selected' : selected }
+        if seed != None:
+            self.state['seed'] = seed
+
+    def bounds (self):
+        return self.subMask.bounds ()
+
+    def startIteration (self, state):
+        for key in self.state:
+            state[key] = self.state[key]
+        return self.subMask.startIteration (state)
+
+    def iterator (self, low0, high0, low1, high1, state):
+        raise RuntimeError, 'iterator called on wrong object'

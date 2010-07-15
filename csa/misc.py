@@ -29,4 +29,6 @@ def block (M, N = None):
 
 transpose = _misc.Transpose ()
 
+fix = _misc.Fix ()
+
 #del _misc                               # not for export
