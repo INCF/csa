@@ -16,16 +16,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import math as _math
-import random as _random
+import math
+import random
 import copy
 
-import connset as _cs
-import valueset as _vs
+import connset as cs
+import valueset as vs
 import _elementary
 
 
-class Random (_cs.Operator):
+class Random (cs.Operator):
     def __mul__ (self, valueSet):
         return ValueSetRandomMask (valueSet)
     
@@ -47,24 +47,24 @@ class Random (_cs.Operator):
         assert False, 'inconsistent parameters'
 
 
-class ValueSetRandomMask (_cs.Mask):
+class ValueSetRandomMask (cs.Mask):
     def __init__ (self, valueSet):
-        _cs.Mask.__init__ (self)
+        cs.Mask.__init__ (self)
         self.valueSet = valueSet
-        self.state = _random.getstate ()
+        self.state = random.getstate ()
 
     def startIteration (self, state):
-        _random.setstate (self.state)
+        random.setstate (self.state)
         return self
 
     def iterator (self, low0, high0, low1, high1, state):
         for j in xrange (low1, high1):
             for i in xrange (low0, high0):
-                if _random.random () < self.valueSet (i, j):
+                if random.random () < self.valueSet (i, j):
                     yield (i, j)
 
 
-class Disc (_cs.Operator):
+class Disc (cs.Operator):
     def __init__ (self, r):
         self.r = r
 
@@ -72,9 +72,9 @@ class Disc (_cs.Operator):
         return DiscMask (self.r, metric)
 
 
-class DiscMask (_cs.Mask):
+class DiscMask (cs.Mask):
     def __init__ (self, r, metric):
-        _cs.Mask.__init__ (self)
+        cs.Mask.__init__ (self)
         self.r = r
         self.metric = metric
 
@@ -85,7 +85,7 @@ class DiscMask (_cs.Mask):
                     yield (i, j)
 
 
-class Gaussian (_cs.Operator):
+class Gaussian (cs.Operator):
     def __init__ (self, sigma, cutoff):
         self.sigma = sigma
         self.cutoff = cutoff
@@ -94,7 +94,7 @@ class Gaussian (_cs.Operator):
         return GaussianValueSet (self.sigma, self.cutoff, metric)
 
 
-class GaussianValueSet (_vs.ValueSet):
+class GaussianValueSet (vs.ValueSet):
     def __init__ (self, sigma, cutoff, metric):
         self.sigma22 = 2* sigma * sigma
         self.cutoff = cutoff
@@ -102,25 +102,25 @@ class GaussianValueSet (_vs.ValueSet):
 
     def __call__ (self, i, j):
         d = self.metric (i, j)
-        return _math.exp (- d * d / self.sigma22) if d < self.cutoff else 0.0
+        return math.exp (- d * d / self.sigma22) if d < self.cutoff else 0.0
 
 
-class Block (_cs.Operator):
+class Block (cs.Operator):
     def __init__ (self, M, N):
         self.M = M
         self.N = N
 
     def __mul__ (self, other):
-        c = _cs.coerceCSet (other)
-        if isinstance (c, _cs.Mask):
+        c = cs.coerceCSet (other)
+        if isinstance (c, cs.Mask):
             return BlockMask (self.M, self.N, c)
         else:
-            return _cs.ConnectionSet (BlockCSet (self.M, self.N, c))
+            return cs.ConnectionSet (BlockCSet (self.M, self.N, c))
 
 
-class BlockMask (_cs.Mask):
+class BlockMask (cs.Mask):
     def __init__ (self, M, N, mask):
-        _cs.Mask.__init__ (self)
+        cs.Mask.__init__ (self)
         self.M = M
         self.N = N
         self.m = mask
@@ -160,32 +160,32 @@ class BlockMask (_cs.Mask):
                             yield (ii, jj)
 
 
-class Transpose (_cs.Operator):
+class Transpose (cs.Operator):
     def __mul__ (self, other):
-        c = _cs.coerceCSet (other)
-        if isinstance (c, _cs.Mask):
+        c = cs.coerceCSet (other)
+        if isinstance (c, cs.Mask):
             return other.transpose ()
         else:
-            return _cs.ConnectionSet (other.transpose ())
+            return cs.ConnectionSet (other.transpose ())
 
 
-class Fix (_cs.Operator):
+class Fix (cs.Operator):
     def __mul__ (self, other):
-        c = _cs.coerceCSet (other)
-        if isinstance (c, _cs.Mask):
+        c = cs.coerceCSet (other)
+        if isinstance (c, cs.Mask):
             return FixedMask (other)
         else:
-            return _cs.ConnectionSet (FixedCSet (other))
+            return cs.ConnectionSet (FixedCSet (other))
 
 
-class FixedMask (_cs.FiniteMask):
+class FixedMask (cs.FiniteMask):
     def __init__ (self, mask):
-        _cs.FiniteMask.__init__ (self)
+        cs.FiniteMask.__init__ (self)
         ls = []
         for c in mask:
             ls.append (c)
         self.connections = ls
-        targets = map (_cs.target, ls)
+        targets = map (cs.target, ls)
         self.low0 = min (ls)[0]
         self.high0 = max (ls)[0] + 1
         self.low1 = min (targets)

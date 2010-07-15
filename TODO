@@ -5,12 +5,10 @@
 
 * Avoid intersection at top of MaskPartition
 
-* Implement CSsetPartition
+* Implement CSetPartition
 
-* Implement lazy evaluation in BanryCSet.makeValueSetMap
+* Implement lazy evaluation in BinaryCSet.makeValueSetMap
 
-* eliminate _names from _files
-
-* Implement SUbMaskContainer (startIteration etc)
+* Implement SubMaskContainer (startIteration etc)
 
 * eliminate code duplication in _elementary.FanInRandomMask
