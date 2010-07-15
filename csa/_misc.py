@@ -35,16 +35,14 @@ class Random (_cs.Operator):
                    'inconsistent parameters'
             return _elementary.ConstantRandomMask (p)
         elif N != None:
-            assert p == None, \
+            assert fanIn == None and fanOut == None, \
                    'inconsistent parameters'
             return _elementary.SampleNRandomOperator (N)
         elif fanIn != None:
-            assert p == None, \
+            assert fanOut == None, \
                    'inconsistent parameters'
             return _elementary.FanInRandomOperator (fanIn)
         elif fanOut != None:
-            assert p == None, \
-                   'inconsistent parameters'
             return _elementary.FanOutRandomOperator (fanOut)
         assert False, 'inconsistent parameters'
 

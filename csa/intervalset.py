@@ -65,6 +65,16 @@ class IntervalSet:
     def __len__ (self):
         return self.nIntegers
 
+    def __contains__ (self, n):
+        for i in self.intervals:
+            if n < i[0]:
+                continue
+            elif n <= i[1]:
+                return True
+            else:
+                return False
+        return False
+
     def __iter__ (self):
         for i in self.intervals:
             for e in xrange (i[0], i[1] + 1):

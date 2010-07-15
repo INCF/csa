@@ -245,4 +245,4 @@ class FanOutRandomOperator (_cs.Operator):
         assert isinstance (other, _cs.Finite) \
                and isinstance (other, _cs.Mask), \
                'expected finite mask'
-        return _cs.TransposedMask (FanInRandomMask (self.fanOut, other))
+        return FanInRandomMask (self.fanOut, other.transpose ()).transpose ()

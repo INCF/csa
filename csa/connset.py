@@ -488,6 +488,9 @@ class IntervalSetMask (FiniteMask):
     def __len__ (self):
         return len (self.set0) * len (self.set1)
 
+    def __contains__ (self, c):
+        return c[0] in self.set0 and c[1] in self.set1
+
     def transpose (self):
         return IntervalSetMask (self.set1, self.set0)
 
