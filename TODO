@@ -12,3 +12,12 @@
 * Implement SubMaskContainer (startIteration etc)
 
 * eliminate code duplication in _elementary.FanInRandomMask
+
+* loosen up criteria on Finite connection sets to BoundedConnectivity
+  (Masks with upper bounds on the number of connections per source or
+  target.)
+
+* generalize FanInRandomMask to work on BoundedInConnectivityMask:s, for
+  example block masks of BoundedInConnectivityMask:s
+
+* generalize SampleNRandomMask to work on Finite masks
