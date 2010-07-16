@@ -121,10 +121,24 @@ class IntervalSet (object):
             other = IntervalSet (other)
         return self.union (other)
 
+    def __radd__ (self, other):
+        return IntervalSet (other).union (self)
+
+    def __sub__ (self, other):
+        if not isinstance (other, IntervalSet):
+            other = IntervalSet (other)
+        return self.intersection (~other)
+
+    def __rsub__ (self, other):
+        return IntervalSet (other).intersection (~self)
+
     def __mul__ (self, other):
         if not isinstance (other, IntervalSet):
             other = IntervalSet (other)
         return self.intersection (other)
+
+    def __rmul__ (self, other):
+        return IntervalSet (other).intersection (self)
 
     def intervalIterator (self):
         return iter (self.intervals)
