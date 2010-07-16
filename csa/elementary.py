@@ -51,7 +51,7 @@ N = _iset.N
 
 # Elementary masks
 #
-empty = _cs.ExplicitMask ([])
+empty = cross ([], [])
 
 full = cross (N, N)
 
