@@ -27,7 +27,7 @@ def show (cset, N0 = 30, N1 = None):
     _plt.axis ('equal')
     a = _numpy.zeros ((N0, N1))
     for (i, j) in elementary.cross (xrange (N0), xrange (N1)) * cset:
-        a[i,j] = 1.0
+        a[i,j] += 1.0
     _plt.imshow (a, interpolation='nearest')
     _plt.show ()
 
