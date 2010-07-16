@@ -96,7 +96,7 @@ class ConnectionSet (object):
         self.c = c
         
     def __len__ (self):
-        return len (c)
+        return len (self.c)
 
     def __iter__ (self):
         return ConnectionSet.iterators[self.c.arity] (self)

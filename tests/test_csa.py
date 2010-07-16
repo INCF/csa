@@ -87,6 +87,29 @@ class TestElementary (TestCSA):
                           '0 \t0\n1 \t1\n2 \t2\n3 \t3\n',
                           'tabulate malfunctioning')
 
+    def test_gaussnet (self):
+        e = ival (0, 19)
+        i = ival (20, 29)
+        a = e + i
+
+        g = random2d (900)
+        d = euclidMetric2d (g)
+
+        g_e = gaussian (0.1, 0.3) * d
+        g_i = gaussian (0.2, 0.3) * d
+
+        c_e = cset (random * g_e, g_e)
+        c_i = cset (random * g_i, -g_i)
+
+        c = cross (e, a) * c_e + cross (i, a) * c_i
+
+        self.assertTrue (cross (N, 0) * c)
+        self.assertFalse (cross (N, 100) * c)
+        
+        for (i, j, g) in cross (i, a) * c:
+            self.assertTrue (g < 0.0)
+
+
     def partitionRandomN (self):
         K = self.K
         N = 3 * K
