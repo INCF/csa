@@ -69,7 +69,7 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
         cs.Mask.__init__ (self)
         self.N = N
         assert isinstance (mask, cs.FiniteISetMask), \
-               'SampleNRandomMask only operates on FiniteISetMask:s'
+               'SampleNRandomMask currently only operates on FiniteISetMask:s'
         self.mask = mask
         self.randomState = random.getstate ()
         self.npRandomState = numpy.random.get_state ()
@@ -160,7 +160,7 @@ class FanInRandomMask (cs.Finite,cs.Mask):
         cs.Mask.__init__ (self)
         self.fanIn = fanIn
         assert isinstance (mask, cs.FiniteISetMask), \
-               'FanInRandomMask only operates on FiniteISetMask:s'
+               'FanInRandomMask currently only operates on FiniteISetMask:s'
         self.mask = mask
         self.randomState = random.getstate ()
 
