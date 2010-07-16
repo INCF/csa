@@ -18,6 +18,8 @@
 
 import sys
 
+infinity = sys.maxint - 1
+
 # Interval sets are represented as ordered lists of closed intervals
 #
 class IntervalSet (object):
@@ -281,8 +283,6 @@ class IntervalSet (object):
 
 
 class ComplementaryIntervalSet (IntervalSet):
-    infinity = sys.maxint - 1
-    
     def __init__ (self, s = [], intervals = None, nIntegers = None):
         IntervalSet.__init__ (self, s, intervals, nIntegers)
 
@@ -324,7 +324,7 @@ class ComplementaryIntervalSet (IntervalSet):
             if i[0] > 0:
                 yield (start, i[0] - 1)
             start = i[1] + 1
-        yield (start, ComplementaryIntervalSet.infinity)
+        yield (start, infinity)
 
     def boundedIterator (self, low, high):
         raise RuntimeError, "can't interate over ComplementaryIntervalSet"

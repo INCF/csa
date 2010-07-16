@@ -42,12 +42,17 @@ def value (obj, k):
     assert isinstance (obj, _cs.ConnectionSet), 'expected connection-set'
     return obj.c.value (k)
 
+# Intervals
+#
+def ival (beg, end):
+    return _iset.IntervalSet ((beg, end))
+
+N = _iset.N
+
 # Cartesian product
 #
 def cross (set0, set1):
     return _cs.intervalSetMask (set0, set1)
-
-N = _iset.N
 
 # Elementary masks
 #

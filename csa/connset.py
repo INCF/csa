@@ -16,7 +16,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys
 import copy
 
 import intervalset
@@ -54,7 +53,14 @@ class CSet (object):
         return len (self.mask ())
 
     def __iter__ (self):
-        raise RuntimeError, 'attempt to retrieve iterator over infinite connection-set'
+        # this code is used for full connection sets
+        if isFinite (self.mask ()):
+            state = State ()
+            obj = self.startIteration (state)
+            (low0, high0, low1, high1) = self.bounds ()
+            return obj.iterator (low0, high0, low1, high1, state)
+        else:
+            raise RuntimeError, 'attempt to retrieve iterator over infinite connection-set'
 
     def bounds (self):
         return self.mask ().bounds ()
@@ -605,11 +611,23 @@ class ISetBoundedMask (FiniteMask):
         self.set0 = set0
         self.set1 = set1
         self.subMask = mask
+        inf = intervalset.infinity
+        if isFinite (mask):
+            (low0, high0, low1, high1) = mask.bounds ()
+        else:
+            (low0, high0, low1, high1) = (0, inf, 0, inf)
         if self.set0 and self.set1:
-            self.low0 = self.set0.min ()
-            self.high0 = self.set0.max () + 1
-            self.low1 = self.set1.min ()
-            self.high1 = self.set1.max () + 1
+            self.low0 = max (self.set0.min (), low0)
+            if self.set0.finite ():
+                self.high0 = min (self.set0.max () + 1, high0)
+            else:
+                self.high0 = high0
+            self.low1 = max (self.set1.min (), low1)
+            if self.set1.finite ():
+                self.high1 = min (self.set1.max () + 1, high1)
+            else:
+                self.high1 = high1
+        assert self.high0 != inf and self.high1 != inf, 'infinite ISetBoundedMask:s currently not supported'
 
     def startIteration (self, state):
         obj = copy.copy (self)
@@ -768,6 +786,7 @@ class CSetMultisetSum (BinaryCSets):
         try:
             (i1, j1, v1) = iter1.next ()
         except StopIteration:
+            (i2, j2, v2) = iter2.next ()
             while True:
                 yield (i2, j2, v2)
                 (i2, j2, v2) = iter2.next ()
