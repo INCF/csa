@@ -42,6 +42,12 @@ def value (obj, k):
     assert isinstance (obj, _cs.ConnectionSet), 'expected connection-set'
     return obj.c.value (k)
 
+def arity (obj):
+    if isinstance (obj, _cs.ConnectionSet):
+        return obj.c.arity
+    else:
+        return 0
+
 # Intervals
 #
 def ival (beg, end):

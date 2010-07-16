@@ -146,10 +146,10 @@ distance d (i, j) < r:
 
   c = disc (r) * d
 
-To examine the result we can employ the function gplotpost2d (g, c, i)
+To examine the result we can employ the function gplotsel2d (g, c, i)
 which displays the targets g (j) of i in the connection set c:
 
-  gplotpost2d (g, c, 434)
+  gplotsel2d (g, c, 434)
 
 In the case where the connection set represents a projection between
 two different coordinate systems, we define one geometry function for
@@ -188,6 +188,6 @@ use the disc operator:
 
   c = disc (0.1) * euclidMetric2d (g1, GcxToVspace * g2)
 
-Again, we use gplotpost2d to check the result:
+Again, we use gplotsel2d to check the result:
 
-  gplotpost2d (g2, c, 282)
+  gplotsel2d (g2, c, 282)

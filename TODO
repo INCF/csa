@@ -21,3 +21,5 @@
   example block masks of BoundedInConnectivityMask:s
 
 * generalize SampleNRandomMask to work on Finite masks
+
+* make value sets returned by value(c,k) iterable
