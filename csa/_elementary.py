@@ -21,6 +21,18 @@ import numpy
 import copy
 
 import connset as cs
+import intervalset as iset
+
+
+class FullMask (cs.IntervalSetMask):
+    def __init__ (self):
+        cs.IntervalSetMask.__init__ (self, iset.N, iset.N)
+
+    def __call__ (self, N0, N1 = None):
+        if N1 == None:
+            N1 = N0
+        return cs.FiniteISetMask (iset.IntervalSet ((0, N0 - 1)), \
+                                  iset.IntervalSet ((0, N1 - 1)))
 
 
 class OneToOne (cs.Mask):

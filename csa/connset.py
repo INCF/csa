@@ -598,6 +598,7 @@ def intervalSetMask (set0, set1):
         else:
             return IntervalSetMask (set0, set1)
 
+
 class ISetBoundedMask (FiniteMask):
     def __init__ (self, set0, set1, mask):
         FiniteMask.__init__ (self)

@@ -53,7 +53,7 @@ N = _iset.N
 #
 empty = cross ([], [])
 
-full = cross (N, N)
+full = _elementary.FullMask ()
 
 oneToOne = _elementary.OneToOne ()
 
