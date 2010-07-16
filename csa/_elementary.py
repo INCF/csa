@@ -163,7 +163,6 @@ class FanInRandomMask (cs.Finite,cs.Mask):
                'FanInRandomMask only operates on IntervalSetMask:s'
         self.mask = mask
         self.randomState = random.getstate ()
-        self.npRandomState = numpy.random.get_state ()
 
     def bounds (self):
         return self.mask.bounds ()
@@ -192,7 +191,6 @@ class FanInRandomMask (cs.Finite,cs.Mask):
         obj.N0 = len (obj.mask.set0)
         obj.lastBound0 = False
         if obj.isPartitioned:
-            numpy.random.set_state (self.npRandomState)
             obj.perTarget = []
             for j in obj.mask.set1:
                 size = 0
