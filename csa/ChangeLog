@@ -1,3 +1,7 @@
+2010-07-16  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* intervalset.py (ComplementaryIntervalSet): New class.
+
 2010-06-29  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
 
 	* elementary.py (partition): New function.

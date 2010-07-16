@@ -16,22 +16,44 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import sys
+
 # Interval sets are represented as ordered lists of closed intervals
 #
-class IntervalSet:
-    def __init__ (self, s = []):
+class IntervalSet (object):
+    @staticmethod
+    # return true if tuple i represents a well-formed interval
+    def goodInterval (i):
+        return len (i) == 2 \
+               and isinstance (i[0], int) \
+               and isinstance (i[1], int) \
+               and i[0] <= i[1]
+
+    @staticmethod
+    def xrangeToIntervals (x):
+        if not x:
+            return []
+        elif len (x) == 1:
+            return [(x[0], x[0])]
+        elif x[1] - x[0] == 1:
+            return [(x[0], x[-1])]
+        else:
+            return ((e, e) for e in x)
+
+    @staticmethod
+    def coerce (s):
         if not isinstance (s, list):
             s = [ s ]
             
         res = []
         for x in s:
             if isinstance (x, tuple):
-                assert goodInterval (x), 'malformed interval'
+                assert IntervalSet.goodInterval (x), 'malformed interval'
                 res.append (x)
             elif isinstance (x, int):
                 res.append ((x, x))
             elif isinstance (x, xrange):
-                res += xrangeToIntervals (x)
+                res += IntervalSet.xrangeToIntervals (x)
             else:
                 raise TypeError, "can't interpret element as interval"
         s = res
@@ -45,6 +67,9 @@ class IntervalSet:
         if s:
             lastLower = s[0][0]
             lastUpper = s[0][1]
+
+            assert lastLower >= 0, 'only positive values allowed'
+
             for i in s[1:]:
                 assert lastLower < i[0] and lastUpper < i[0], 'intervals overlap'
                 if i[0] - lastUpper == 1:
@@ -57,10 +82,17 @@ class IntervalSet:
             res.append ((lastLower, lastUpper))
             N += 1 + lastUpper - lastLower
 
-        self.intervals = res
-        self.nIntegers = N
+        return (res, N)
+    
+    def __init__ (self, s = [], intervals = None, nIntegers = None):
+        if intervals:
+            self.intervals = intervals
+            self.nIntegers = nIntegers
+        else:
+            (self.intervals, self.nIntegers) = self.coerce (s)
 
-        assert not self or self.min () >= 0, 'only positive values allowed'
+    def __repr__ (self):
+        return 'IntervalSet(%r)' % self.intervals
 
     def __len__ (self):
         return self.nIntegers
@@ -79,6 +111,20 @@ class IntervalSet:
         for i in self.intervals:
             for e in xrange (i[0], i[1] + 1):
                 yield e
+
+    def __invert__ (self):
+        return ComplementaryIntervalSet (intervals = self.intervals, \
+                                         nIntegers = self.nIntegers)
+
+    def __add__ (self, other):
+        if not isinstance (other, IntervalSet):
+            other = IntervalSet (other)
+        return self.union (other)
+
+    def __mul__ (self, other):
+        if not isinstance (other, IntervalSet):
+            other = IntervalSet (other)
+        return self.intersection (other)
 
     def intervalIterator (self):
         return iter (self.intervals)
@@ -142,6 +188,9 @@ class IntervalSet:
         return iset
 
     def union (self, other):
+        if isinstance (other, ComplementaryIntervalSet):
+            return ~(~self).intersection (~other)
+        
         iset = IntervalSet ()
         if not other.nIntegers:
             iset.intervals = list (self.intervals)
@@ -214,20 +263,85 @@ class IntervalSet:
         return iset
 
 
-# return true if tuple i represents a well-formed interval
-def goodInterval (i):
-    return len (i) == 2 \
-           and isinstance (i[0], int) \
-           and isinstance (i[1], int) \
-           and i[0] <= i[1]
+class ComplementaryIntervalSet (IntervalSet):
+    infinity = sys.maxint - 1
+    
+    def __init__ (self, s = [], intervals = None, nIntegers = None):
+        IntervalSet.__init__ (self, s, intervals, nIntegers)
 
+    def __repr__ (self):
+        if not self.intervals:
+            return 'N'
+        else:
+            return '~IntervalSet(%r)' % self.intervals
 
-def xrangeToIntervals (x):
-    if not x:
-        return []
-    elif len (x) == 1:
-        return [(x[0], x[0])]
-    elif x[1] - x[0] == 1:
-        return [(x[0], x[-1])]
-    else:
-        return ((e, e) for e in x)
+    def __nonzero__ (self):
+        return True
+
+    def __len__ (self):
+        raise RuntimeError, 'ComplementaryIntervalSet has infinite length'
+    
+    def __contains__ (self, n):
+        for i in self.intervals:
+            if n < i[0]:
+                continue
+            elif n <= i[1]:
+                return False
+            else:
+                return True
+        return True
+
+    def __iter__ (self):
+        raise RuntimeError, "can't interate over ComplementaryIntervalSet"
+
+    def __invert__ (self):
+        return IntervalSet (intervals = self.intervals, \
+                            nIntegers = self.nIntegers)
+
+    def intervalIterator (self):
+        start = 0
+        for i in self.intervals:
+            if i[0] > 0:
+                yield (start, i[0] - 1)
+            start = i[1] + 1
+        yield (start, ComplementaryIntervalSet.infinity)
+
+    def boundedIterator (self, low, high):
+        raise RuntimeError, "can't interate over ComplementaryIntervalSet"
+
+    def count (self, low, high):
+        iterator = iter (self.intervals)
+        c = 0
+        prev = low
+        try:
+            i = iterator.next ()
+            while i[1] < low:
+                i = iterator.next ()
+            while i[0] < high:
+                c += i[0] - prev
+                prev = i[1] + 1
+                i = iterator.next ()
+        except StopIteration:
+            pass
+        if prev < high:
+            c += high - prev
+        return c
+
+    def min (self):
+        if not self.intervals or self.intervals[0][0] > 0:
+            return 0
+        else:
+            return self.intervals[0][1] + 1
+
+    def max (self):
+        raise RuntimeError, 'the maximum of a ComplementaryIntervalSet is infinity'
+
+    def intersection (self, other):
+        if isinstance (other, ComplementaryIntervalSet):
+            return ~(~self).union (~other)
+        else:
+            return IntervalSet.intersection (self, other)
+
+    def union (self, other):
+        return ~(~self).intersection (~other)
+

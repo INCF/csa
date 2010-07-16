@@ -18,6 +18,7 @@
 
 import sys as _sys
 
+import intervalset as _iset
 import connset as _cs
 import _elementary
 import _misc
@@ -46,7 +47,7 @@ def value (obj, k):
 def cross (set0, set1):
     return _cs.IntervalSetMask (set0, set1)
 
-N = (0,_sys.maxint - 1)
+N = _iset.ComplementaryIntervalSet ([])
 
 # Elementary masks
 #
