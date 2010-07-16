@@ -140,6 +140,9 @@ class IntervalSet (object):
     def __rmul__ (self, other):
         return IntervalSet (other).intersection (self)
 
+    def finite (self):
+        return True
+
     def intervalIterator (self):
         return iter (self.intervals)
 
@@ -312,6 +315,9 @@ class ComplementaryIntervalSet (IntervalSet):
         return IntervalSet (intervals = self.intervals, \
                             nIntegers = self.nIntegers)
 
+    def finite (self):
+        return False
+
     def intervalIterator (self):
         start = 0
         for i in self.intervals:
@@ -359,3 +365,4 @@ class ComplementaryIntervalSet (IntervalSet):
     def union (self, other):
         return ~(~self).intersection (~other)
 
+N = ComplementaryIntervalSet ([])

@@ -44,7 +44,7 @@ def euclidDistance2d (p1, p2):
     dy = p1[1] - p2[1]
     return _math.sqrt (dx * dx + dy * dy)
 
-class ProjectionOperator:
+class ProjectionOperator (object):
     def __init__ (self, projection):
         self.projection = projection
 

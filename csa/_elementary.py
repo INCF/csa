@@ -68,8 +68,8 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
     def __init__ (self, N, mask):
         cs.Mask.__init__ (self)
         self.N = N
-        assert isinstance (mask, cs.IntervalSetMask), \
-               'SampleNRandomMask only operates on IntervalSetMask:s'
+        assert isinstance (mask, cs.FiniteISetMask), \
+               'SampleNRandomMask only operates on FiniteISetMask:s'
         self.mask = mask
         self.randomState = random.getstate ()
         self.npRandomState = numpy.random.get_state ()
@@ -99,8 +99,8 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
                                            / float (total))
             obj.N = N[state['selected']]
             obj.mask = partitions[state['selected']]
-            assert isinstance (obj.mask, cs.IntervalSetMask), \
-                   'SampleNRandomMask iterator only handles IntervalSetMask partitions'
+            assert isinstance (obj.mask, cs.FiniteISetMask), \
+                   'SampleNRandomMask iterator only handles finite IntervalSetMask partitions'
         obj.mask = obj.mask.startIteration (state)
         obj.N0 = len (obj.mask.set0)
         obj.lastBound0 = False
@@ -159,8 +159,8 @@ class FanInRandomMask (cs.Finite,cs.Mask):
     def __init__ (self, fanIn, mask):
         cs.Mask.__init__ (self)
         self.fanIn = fanIn
-        assert isinstance (mask, cs.IntervalSetMask), \
-               'FanInRandomMask only operates on IntervalSetMask:s'
+        assert isinstance (mask, cs.FiniteISetMask), \
+               'FanInRandomMask only operates on FiniteISetMask:s'
         self.mask = mask
         self.randomState = random.getstate ()
 
@@ -185,8 +185,8 @@ class FanInRandomMask (cs.Finite,cs.Mask):
 
             selected = state['selected']
             obj.mask = partitions[selected]
-            assert isinstance (obj.mask, cs.IntervalSetMask), \
-                   'SampleNRandomMask iterator only handles IntervalSetMask partitions'
+            assert isinstance (obj.mask, cs.FiniteISetMask), \
+                   'FanInRandomMask iterator only handles finite IntervalSetMask partitions'
         obj.mask = obj.mask.startIteration (state)
         obj.N0 = len (obj.mask.set0)
         obj.lastBound0 = False

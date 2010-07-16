@@ -45,15 +45,15 @@ def value (obj, k):
 # Cartesian product
 #
 def cross (set0, set1):
-    return _cs.IntervalSetMask (set0, set1)
+    return _cs.intervalSetMask (set0, set1)
 
-N = _iset.ComplementaryIntervalSet ([])
+N = _iset.N
 
 # Elementary masks
 #
 empty = _cs.ExplicitMask ([])
 
-full = cross (xrange (_sys.maxint), xrange (_sys.maxint))
+full = cross (N, N)
 
 oneToOne = _elementary.OneToOne ()
 

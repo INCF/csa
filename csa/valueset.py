@@ -16,7 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-class ValueSet:
+class ValueSet (object):
     def __neg__ (self):
         return GenericValueSet (lambda i, j: - self (i, j))
     

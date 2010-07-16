@@ -25,7 +25,7 @@ import valueset
 # This is the fundamental connection-set class
 # which is also the base class for masks
 #
-class CSet:
+class CSet (object):
     def __init__ (self, mask, *valueSets):
         self._mask = mask
         self.valueSets = list (valueSets)
@@ -85,7 +85,7 @@ class CSet:
 # to wrap non mask connection-sets so that the same code can implement
 # connection-sets of different arity.  Some type dispatch is also done here.
 #
-class ConnectionSet:
+class ConnectionSet (object):
     def __init__ (self, c):
         self.c = c
         
@@ -266,7 +266,7 @@ class Mask (CSet):
         return MaskDifference (self, other)
 
 
-class Finite ():
+class Finite (object):
     def bounds (self):
         return NotImplemented
 
@@ -472,21 +472,14 @@ class ExplicitMask (FiniteMask):
             (i, j) = iterator.next ()
 
 
-class IntervalSetMask (FiniteMask):
+class IntervalSetMask (Mask):
     def __init__ (self, set0, set1):
-        FiniteMask.__init__ (self)
-        self.set0 = set0 if isinstance (set0, intervalset.IntervalSet) \
-                    else intervalset.IntervalSet (set0)
-        self.set1 = set1 if isinstance (set1, intervalset.IntervalSet) \
-                    else intervalset.IntervalSet (set1)
-        if self.set0 and self.set1:
-            self.low0 = self.set0.min ()
-            self.high0 = self.set0.max () + 1
-            self.low1 = self.set1.min ()
-            self.high1 = self.set1.max () + 1
+        Mask.__init__ (self)
+        self.set0 = set0
+        self.set1 = set1
 
-    def __len__ (self):
-        return len (self.set0) * len (self.set1)
+    def __repr__ (self):
+        return 'cross(%r, %r)' % (self.set0, self.set1)
 
     def __contains__ (self, c):
         return c[0] in self.set0 and c[1] in self.set1
@@ -495,17 +488,6 @@ class IntervalSetMask (FiniteMask):
         return IntervalSetMask (self.set1, self.set0)
 
     def iterator (self, low0, high0, low1, high1, state):
-        if not self.isBoundedBy (low0, high0, low1, high1):
-            return self.simpleIterator ()
-        else:
-            return self.boundedIterator (low0, high0, low1, high1, state)
-
-    def simpleIterator (self):
-        for j in self.set1:
-            for i in self.set0:
-                yield (i, j)
-
-    def boundedIterator (self, low0, high0, low1, high1, state):
         iterator1 = self.set1.intervalIterator ()
         i1 = iterator1.next ()
         while i1[1] < low1:
@@ -538,7 +520,7 @@ class IntervalSetMask (FiniteMask):
         if isinstance (other, IntervalSetMask):
             set0 = self.set0.intersection (other.set0)
             set1 = self.set1.intersection (other.set1)
-            return IntervalSetMask (set0, set1)
+            return intervalSetMask (set0, set1)
         else:
             return ISetBoundedMask (self.set0, self.set1, other)
 
@@ -548,13 +530,73 @@ class IntervalSetMask (FiniteMask):
                or not self.set1.intersection (other.set1):
                 set0 = self.set0.union (other.set0)
                 set1 = self.set1.union (other.set1)
-                return IntervalSetMask (set0, set1)
+                return intervalSetMask (set0, set1)
             else:
                 raise RuntimeError, \
                       'sums of overlapping IntervalSetMask:s not yet supported'
         else:
             return FiniteMask.multisetSum (self, other)
 
+
+class FiniteISetMask (FiniteMask, IntervalSetMask):
+    def __init__ (self, set0, set1):
+        FiniteMask.__init__ (self)
+        IntervalSetMask.__init__ (self, set0, set1)
+        if self.set0 and self.set1:
+            self.low0 = self.set0.min ()
+            self.high0 = self.set0.max () + 1
+            self.low1 = self.set1.min ()
+            self.high1 = self.set1.max () + 1
+
+    def __len__ (self):
+        return len (self.set0) * len (self.set1)
+
+    def transpose (self):
+        return FiniteISetMask (self.set1, self.set0)
+
+    def iterator (self, low0, high0, low1, high1, state):
+        if not self.isBoundedBy (low0, high0, low1, high1):
+            return self.simpleIterator ()
+        else:
+            return IntervalSetMask.iterator (self, low0, high0, low1, high1, state)
+
+    def simpleIterator (self):
+        for j in self.set1:
+            for i in self.set0:
+                yield (i, j)
+
+
+class FiniteSourcesISetMask (IntervalSetMask):
+    def __init__ (self, set0, set1):
+        IntervalSetMask.__init__ (self, set0, set1)
+
+    def transpose (self):
+        return FiniteTargetsISetMask (self.set1, self.set0)
+
+
+class FiniteTargetsISetMask (IntervalSetMask):
+    def __init__ (self, set0, set1):
+        IntervalSetMask.__init__ (self, set0, set1)
+
+    def transpose (self):
+        return FiniteSourcesISetMask (self.set1, self.set0)
+
+
+def intervalSetMask (set0, set1):
+    set0 = set0 if isinstance (set0, intervalset.IntervalSet) \
+           else intervalset.IntervalSet (set0)
+    set1 = set1 if isinstance (set1, intervalset.IntervalSet) \
+           else intervalset.IntervalSet (set1)
+    if set0.finite ():
+        if set1.finite ():
+            return FiniteISetMask (set0, set1)
+        else:
+            return FiniteSourcesISetMask (set0, set1)
+    else:
+        if set1.finite ():
+            return FiniteTargetsISetMask (set0, set1)
+        else:
+            return IntervalSetMask (set0, set1)
 
 class ISetBoundedMask (FiniteMask):
     def __init__ (self, set0, set1, mask):
@@ -765,7 +807,7 @@ class CSetMultisetSum (BinaryCSets):
         return CSetIntersection (self, other)
 
 
-class Operator:
+class Operator (object):
     pass
 
 
