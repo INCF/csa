@@ -10,7 +10,7 @@ dist:
 
 debian-source: dist
 	@test ! -e $(debdir) || ( echo "*** Remove directory dist/csa-${PACKAGE_VERSION}" && exit 1 )
-	mv dist/csa-$(PACKAGE_VERSION).tar.gz dist/$(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz
+	cp -p dist/csa-$(PACKAGE_VERSION).tar.gz dist/$(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz
 	( cd dist; tar zxf $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz )
 	mkdir $(debdir)/debian
 	cp -pr debian $(debdir)
