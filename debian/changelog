@@ -1,3 +1,9 @@
+python-csa (0.0.2-1) unstable; urgency=low
+
+  * Bug fixes and extensions.
+
+ -- Mikael Djurfeldt <mdj@debian.org>  Sat, 17 Jul 2010 11:30:38 +0200
+
 python-csa (0.0.1-1) unstable; urgency=low
 
   * Initial release (Closes: #588360)
