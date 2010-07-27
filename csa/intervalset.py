@@ -145,6 +145,23 @@ class IntervalSet (object):
     def finite (self):
         return True
 
+    def shift (self, N):
+        if not self or N == 0:
+            return self
+
+        intervals = []
+        nIntegers = self.nIntegers
+        for (i, j) in self.intervals:
+            i += N
+            j += N
+            if i >= 0:
+                intervals.append ((i, j))
+            elif j >= 0:
+                intervals.append ((0, j))
+                nIntegers += i
+                
+        return IntervalSet (intervals = intervals, nIntegers = nIntegers)
+
     def intervalIterator (self):
         return iter (self.intervals)
 
@@ -317,6 +334,12 @@ class ComplementaryIntervalSet (IntervalSet):
 
     def finite (self):
         return False
+
+    def shift (self, N):
+        iset = IntervalSet (intervals = self.intervals, \
+                            nIntegers = self.nIntegers).shift (N)
+        return ComplementaryIntervalSet (intervals = iset.intervals, \
+                                         nIntegers = iset.nIntegers)
 
     def intervalIterator (self):
         start = 0

@@ -240,6 +240,9 @@ class Mask (CSet):
                'transpose currently only supports finite masks'
         return TransposedMask (self)
 
+    def shift (self, M, N):
+        return shiftedMask (self, M, N)
+    
     def startIteration (self, state):
         # default action:
         return self
@@ -493,6 +496,9 @@ class IntervalSetMask (Mask):
     def transpose (self):
         return IntervalSetMask (self.set1, self.set0)
 
+    def shift (self, M, N):
+        return IntervalSetMask (self.set0.shift (M), self.set1.shift (N))
+
     def iterator (self, low0, high0, low1, high1, state):
         iterator1 = self.set1.intervalIterator ()
         i1 = iterator1.next ()
@@ -560,6 +566,9 @@ class FiniteISetMask (FiniteMask, IntervalSetMask):
     def transpose (self):
         return FiniteISetMask (self.set1, self.set0)
 
+    def shift (self, M, N):
+        return FiniteISetMask (self.set0.shift (M), self.set1.shift (N))
+
     def iterator (self, low0, high0, low1, high1, state):
         if not self.isBoundedBy (low0, high0, low1, high1):
             return self.simpleIterator ()
@@ -579,6 +588,10 @@ class FiniteSourcesISetMask (IntervalSetMask):
     def transpose (self):
         return FiniteTargetsISetMask (self.set1, self.set0)
 
+    def shift (self, M, N):
+        return FiniteSourcesISetMask (self.set0.shift (M), \
+                                      self.set1.shift (N))
+
 
 class FiniteTargetsISetMask (IntervalSetMask):
     def __init__ (self, set0, set1):
@@ -586,6 +599,10 @@ class FiniteTargetsISetMask (IntervalSetMask):
 
     def transpose (self):
         return FiniteSourcesISetMask (self.set1, self.set0)
+
+    def shift (self, M, N):
+        return FiniteTargetsISetMask (self.set0.shift (M), \
+                                      self.set1.shift (N))
 
 
 def intervalSetMask (set0, set1):
@@ -855,6 +872,47 @@ class TransposedMask (Finite, Mask):
             ls.append ((c[1], c[0]))
         ls.sort (cmpPostOrder)
         return iter (ls)
+
+
+class ShiftedMask (Mask):
+    def __init__ (self, mask, M, N):
+        self.subMask = mask
+        self.M = M
+        self.N = N
+
+    def startIteration (self, state):
+        obj = copy.copy (self)
+        obj.subMask = self.subMask.startIteration (state)
+        return obj
+
+    def iterator (self, low0, high0, low1, high1, state):
+        low0 -= self.M
+        high0 -= self.M
+        low1 -= self.N
+        high1 -= self.N
+        for (i, j) in self.subMask.iterator (max (low0, 0), high0, \
+                                             max (low1, 0), high1, \
+                                             state):
+            (i1, j1) = (i + self.M, j + self.N)
+            if i1 >= 0 and j1 >= 0:
+                yield (i1, j1)
+
+
+class FiniteShiftedMask (Finite, ShiftedMask):
+    def bounds (self):
+        (low0, high0, low1, high1) = self.subMask.bounds ()
+        low0 += self.M
+        high0 += self.M
+        low1 += self.N
+        high1 += self.N
+        return (max (low0, 0), high0, max (low1, 0), high1)
+
+
+def shiftedMask (mask, M, N):
+    if isFinite (mask):
+        return FiniteShiftedMask (mask, M, N)
+    else:
+        return ShiftedMask (mask, M, N)
 
 
 class State (dict):

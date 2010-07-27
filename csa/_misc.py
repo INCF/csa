@@ -169,6 +169,19 @@ class Transpose (cs.Operator):
             return cs.ConnectionSet (other.transpose ())
 
 
+class Shift (cs.Operator):
+    def __init__ (self, M, N):
+        self.M = M
+        self.N = N
+
+    def __mul__ (self, other):
+        c = cs.coerceCSet (other)
+        if isinstance (c, cs.Mask):
+            return other.shift (self.M, self.N)
+        else:
+            return cs.ConnectionSet (other.shift (self.M, self.N))
+
+
 class Fix (cs.Operator):
     def __mul__ (self, other):
         c = cs.coerceCSet (other)

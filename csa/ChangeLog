@@ -1,3 +1,7 @@
+2010-07-25  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
+
+	* misc.py (shift), _misc.py (Shift): Added shift operator.
+
 2010-07-16  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
 
 	* intervalset.py (ComplementaryIntervalSet): New class.

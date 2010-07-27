@@ -29,6 +29,12 @@ def block (M, N = None):
 
 transpose = _misc.Transpose ()
 
+def shift (M, N):
+    return _misc.Shift (M, N)
+
 fix = _misc.Fix ()
+
+def block1 (N):
+    return _misc.Block (N)
 
 #del _misc                               # not for export
