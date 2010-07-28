@@ -7,6 +7,8 @@ Build-Depends: debhelper (>= 7.0.50~)
  , python-setuptools
  , python-all
  , python-nose
+ , python-numpy
+ , python-matplotlib
 Standards-Version: 3.9.0
 Homepage: http://software.incf.org/software/csa
 Vcs-Svn: http://svn.incf.org/svn/csa
@@ -14,7 +16,7 @@ Vcs-Browser: http://svn.incf.org/svn/csa
 
 Package: python-csa
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}
+Depends: ${python:Depends}, ${misc:Depends}, python-numpy, python-matplotlib
 Description: The Connection-Set Algebra implemented in Python
  The CSA library provides elementary connection-sets and operators for
  combining them. It also provides an iteration interface to such
