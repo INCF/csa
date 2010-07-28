@@ -5,10 +5,10 @@ debdir = dist/csa-$(PACKAGE_VERSION)
 
 .PHONY: dist debian-source debian-package
 
-dist:
+dist/csa-$(PACKAGE_VERSION).tar.gz:
 	python setup.py sdist
 
-debian-source: dist
+debian-source: dist/csa-$(PACKAGE_VERSION).tar.gz
 	@test ! -e $(debdir) || ( echo "*** Remove directory dist/csa-${PACKAGE_VERSION}" && exit 1 )
 	cp -p dist/csa-$(PACKAGE_VERSION).tar.gz dist/$(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz
 	( cd dist; tar zxf $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz )
