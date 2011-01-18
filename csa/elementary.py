@@ -20,6 +20,7 @@ import sys as _sys
 
 import intervalset as _iset
 import connset as _cs
+import valueset as _vs
 import _elementary
 import _misc
 
@@ -47,6 +48,14 @@ def arity (obj):
         return obj.c.arity
     else:
         return 0
+
+# Value-set constructor
+#
+def vset (obj):
+    if not callable (obj):
+        return _vs.QuotedValueSet (obj)
+    else:
+        return _vs.GenericValueSet (obj)
 
 # Intervals
 #

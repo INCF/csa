@@ -1,3 +1,7 @@
+2011-01-18  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* elementary.py (vset): New function.
+
 2010-07-25  Mikael Djurfeldt  <mdj@spell.djurfeldt.com>
 
 	* misc.py (shift), _misc.py (Shift): Added shift operator.
