@@ -17,9 +17,12 @@
 #
 
 from version import __version__
+from connset import Mask
+from connset import ConnectionSet
 from elementary import *
 #from operators import *
 #from arithmetic import *
 from misc import *
 from geometry import *
-from plot import *
+from csaobject import parse
+#from plot import *

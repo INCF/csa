@@ -23,10 +23,15 @@ import copy
 import connset as cs
 import intervalset as iset
 
+from csaobject import *
 
 class FullMask (cs.IntervalSetMask):
+    tag = 'full'
+    
     def __init__ (self):
         cs.IntervalSetMask.__init__ (self, iset.N, iset.N)
+        self.name = FullMask.tag
+        CSAObject.tag_map[CSA + FullMask.tag] = (self, SINGLETON)
 
     def __call__ (self, N0, N1 = None):
         if N1 == None:
@@ -36,8 +41,12 @@ class FullMask (cs.IntervalSetMask):
 
 
 class OneToOne (cs.Mask):
+    tag = 'oneToOne'
+    
     def __init__ (self):
         cs.Mask.__init__ (self)
+        self.name = OneToOne.tag
+        CSAObject.tag_map[CSA + OneToOne.tag] = (self, SINGLETON)
     
     def iterator (self, low0, high0, low1, high1, state):
         for i in xrange (max (low0, low1), min (high0, high1)):
@@ -45,10 +54,13 @@ class OneToOne (cs.Mask):
 
 
 class ConstantRandomMask (cs.Mask):
+    tag = 'randomMask'
+    
     def __init__ (self, p):
         cs.Mask.__init__ (self)
         self.p = p
         self.state = random.getstate ()
+        self.name = ConstantRandomMask.tag
 
     def startIteration (self, state):
         random.setstate (self.state)
@@ -59,6 +71,14 @@ class ConstantRandomMask (cs.Mask):
             for i in xrange (low0, high0):
                 if random.random () < self.p:
                     yield (i, j)
+
+    def repr (self):
+        return 'random(%s)' % self.p
+
+    def _to_xml (self):
+        return CSAObject.apply (ConstantRandomMask.tag, self.p)
+
+CSAObject.tag_map[CSA + ConstantRandomMask.tag] = (ConstantRandomMask, 1)
 
 
 class SampleNRandomOperator (cs.Operator):

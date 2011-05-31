@@ -21,14 +21,35 @@ import copy
 import intervalset
 import valueset
 
+from csaobject import *
+
 # This is the fundamental connection-set class
 # which is also the base class for masks
 #
-class CSet (object):
+class CSet (CSAObject):
     def __init__ (self, mask, *valueSets):
+        CSAObject.__init__ (self, "icset");
         self._mask = mask
         self.valueSets = list (valueSets)
         self.arity = len (self.valueSets)
+
+    def repr (self, name = None):
+        if self.arity:
+            if not name:
+                name = self.name
+            vreprs = []
+            for k in xrange (self.arity):
+                v = self.value (k)
+                if isinstance (v, CSAObject):
+                    vreprs += ", %s" % v.repr ()
+                else:
+                    vreprs += ", %s" % v
+            return "%s (%s%s)" % (self.name, self.mask (), "".join (vreprs))
+        else:
+            if self.mask () == self:
+                return self.name
+            else:
+                return "%s (%s)" % (self.name, self.mask ())
 
     def mask (self):
         #*fixme* remove this condition?
@@ -91,9 +112,13 @@ class CSet (object):
 # to wrap non mask connection-sets so that the same code can implement
 # connection-sets of different arity.  Some type dispatch is also done here.
 #
-class ConnectionSet (object):
+class ConnectionSet (CSAObject):
     def __init__ (self, c):
+        CSAObject.__init__ (self, "cset")
         self.c = c
+
+    def repr (self):
+        return self.c.repr ()
         
     def __len__ (self):
         return len (self.c)
@@ -330,26 +355,25 @@ class NoParIterator ():
         self.lastC = c
 
 
-class BinaryMask (Mask):
-    def __init__ (self, c1, c2):
+class BinaryMask (BinaryCSAObject, Mask):
+    def __init__ (self, operator, op1, op2):
         Mask.__init__ (self)
-        self.c1 = c1
-        self.c2 = c2
+        BinaryCSAObject.__init__ (self, operator, op1, op2)
 
     def startIteration (self, state):
         obj = copy.copy (self)
-        obj.c1 = self.c1.startIteration (state)
-        obj.c2 = self.c2.startIteration (state)
+        obj.op1 = self.op1.startIteration (state)
+        obj.op2 = self.op2.startIteration (state)
         return obj
 
 
 class MaskIntersection (BinaryMask):
-    def __init__ (self, c1, c2):
-        BinaryMask.__init__ (self, c1, c2)
+    def __init__ (self, op1, op2):
+        BinaryMask.__init__ (self, '*', op1, op2)
 
     def iterator (self, low0, high0, low1, high1, state):
-        iter1 = self.c1.iterator (low0, high0, low1, high1, state)
-        iter2 = self.c2.iterator (low0, high0, low1, high1, state)
+        iter1 = self.op1.iterator (low0, high0, low1, high1, state)
+        iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         (i1, j1) = iter1.next ()
         (i2, j2) = iter2.next ()
         while True:
@@ -364,21 +388,21 @@ class MaskIntersection (BinaryMask):
 
 
 class FiniteMaskIntersection (Finite, MaskIntersection):
-    def __init__ (self, c1, c2):
-        assert isFinite (c1)
-        MaskIntersection.__init__ (self, c1, c2)
+    def __init__ (self, op1, op2):
+        assert isFinite (op1)
+        MaskIntersection.__init__ (self, op1, op2)
 
     def bounds (self):
-        return self.c1.bounds ()
+        return self.op1.bounds ()
 
 
 class MaskMultisetSum (BinaryMask):
-    def __init__ (self, c1, c2):
-        BinaryMask.__init__ (self, c1, c2)
+    def __init__ (self, op1, op2):
+        BinaryMask.__init__ (self, "+", op1, op2)
 
     def iterator (self, low0, high0, low1, high1, state):
-        iter1 = self.c1.iterator (low0, high0, low1, high1, state)
-        iter2 = self.c2.iterator (low0, high0, low1, high1, state)
+        iter1 = self.op1.iterator (low0, high0, low1, high1, state)
+        iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         try:
             (i1, j1) = iter1.next ()
         except StopIteration:
@@ -414,21 +438,21 @@ class MaskMultisetSum (BinaryMask):
 
 
 class FiniteMaskMultisetSum (Finite, MaskMultisetSum):
-    def __init__ (self, c1, c2):
-        assert isFinite (c1) and isFinite (c2)
-        MaskMultisetSum.__init__ (self, c1, c2)
+    def __init__ (self, op1, op2):
+        assert isFinite (op1) and isFinite (op2)
+        MaskMultisetSum.__init__ (self, op1, op2)
 
     def bounds (self):
-        return self.maxBounds (self.c1.bounds (), self.c2.bounds ())
+        return self.maxBounds (self.op1.bounds (), self.op2.bounds ())
 
 
 class MaskDifference (BinaryMask):
-    def __init__ (self, c1, c2):
-        BinaryMask.__init__ (self, c1, c2)
+    def __init__ (self, op1, op2):
+        BinaryMask.__init__ (self, "-", op1, op2)
 
     def iterator (self, low0, high0, low1, high1, state):
-        iter1 = self.c1.iterator (low0, high0, low1, high1, state)
-        iter2 = self.c2.iterator (low0, high0, low1, high1, state)
+        iter1 = self.op1.iterator (low0, high0, low1, high1, state)
+        iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         (i1, j1) = iter1.next ()
         (i2, j2) = iter2.next ()
         while True:
@@ -446,8 +470,8 @@ class MaskDifference (BinaryMask):
                     (i1, j1) = iter1.next ()
 
 
-def cmpPostOrder (c0, c1):
-    return cmp ((c0[1], c0[0]), (c1[1], c1[0]))
+def cmpPostOrder (c0, op1):
+    return cmp ((c0[1], c0[0]), (op1[1], op1[0]))
 
 
 class ExplicitMask (FiniteMask):
@@ -487,7 +511,7 @@ class IntervalSetMask (Mask):
         self.set0 = set0
         self.set1 = set1
 
-    def __repr__ (self):
+    def repr (self):
         return 'cross(%r, %r)' % (self.set0, self.set1)
 
     def __contains__ (self, c):
@@ -742,11 +766,12 @@ class SubCSet (CSet):
             return self.subCSet.makeValueSet (k)
 
 
-class BinaryCSet (CSet):
-    def __init__ (self, c1, c2):
-        CSet.__init__ (self, None, *[ None for v in c1.valueSets ])
-        self.c1 = c1
-        self.c2 = c2
+class BinaryCSet (BinaryCSAObject, CSet):
+    def __init__ (self, operator, op1, op2):
+        CSet.__init__ (self, None, *[ None for v in op1.valueSets ])
+        self.name = operator
+        self.op1 = op1
+        self.op2 = op2
         self.valueSetMap = None
 
     def makeFiniteValueSet (self, k, bounds):
@@ -765,20 +790,20 @@ class BinaryCSet (CSet):
 
 
 class BinaryCSets (BinaryCSet):
-    def __init__ (self, c1, c2):
-        assert c1.arity == c2.arity, 'binary operation on connection-sets with different arity'
-        BinaryCSet.__init__ (self, c1, c2)
+    def __init__ (self, operator, op1, op2):
+        assert op1.arity == op2.arity, 'binary operation on connection-sets with different arity'
+        BinaryCSet.__init__ (self, operator, op1, op2)
 
 
 class CSetIntersection (BinaryCSet):
-    def __init__ (self, c1, c2):
-        assert isinstance (c2, Mask), 'expected Mask operand'
-        BinaryCSet.__init__ (self, c1, c2)
-        self._mask = c1.mask ().intersection (c2)
+    def __init__ (self, op1, op2):
+        assert isinstance (op2, Mask), 'expected Mask operand'
+        BinaryCSet.__init__ (self, "*", op1, op2)
+        self._mask = op1.mask ().intersection (op2)
 
     def iterator (self, low0, high0, low1, high1, state):
-        iter1 = self.c1.iterator (low0, high0, low1, high1, state)
-        iter2 = self.c2.iterator (low0, high0, low1, high1, state)
+        iter1 = self.op1.iterator (low0, high0, low1, high1, state)
+        iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         (i1, j1, v1) = iter1.next ()
         (i2, j2) = iter2.next ()
         while True:
@@ -793,13 +818,13 @@ class CSetIntersection (BinaryCSet):
 
 
 class CSetMultisetSum (BinaryCSets):
-    def __init__ (self, c1, c2):
-        BinaryCSet.__init__ (self, c1, c2)
-        self._mask = c1.mask ().multisetSum (c2.mask ())
+    def __init__ (self, op1, op2):
+        BinaryCSet.__init__ (self, "+", op1, op2)
+        self._mask = op1.mask ().multisetSum (op2.mask ())
         
     def iterator (self, low0, high0, low1, high1, state):
-        iter1 = self.c1.iterator (low0, high0, low1, high1, state)
-        iter2 = self.c2.iterator (low0, high0, low1, high1, state)
+        iter1 = self.op1.iterator (low0, high0, low1, high1, state)
+        iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         try:
             (i1, j1, v1) = iter1.next ()
         except StopIteration:
@@ -837,15 +862,11 @@ class CSetMultisetSum (BinaryCSets):
         assert isinstance (other, Mask), 'expected Mask operand'
         if isFinite (self) or isFinite (other):
             # since operands are finite we are allowed to use isEmpty
-            if isEmpty (self.c2.mask ().intersection (other)):
-                return self.c1.intersection (other)
-            if isEmpty (self.c1.mask ().intersection (other)):
-                return self.c2.intersection (other)
+            if isEmpty (self.op2.mask ().intersection (other)):
+                return self.op1.intersection (other)
+            if isEmpty (self.op1.mask ().intersection (other)):
+                return self.op2.intersection (other)
         return CSetIntersection (self, other)
-
-
-class Operator (object):
-    pass
 
 
 class TransposedMask (Finite, Mask):

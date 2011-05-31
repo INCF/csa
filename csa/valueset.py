@@ -16,7 +16,9 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-class ValueSet (object):
+from csaobject import *
+
+class ValueSet (CSAObject):
     def __neg__ (self):
         return GenericValueSet (lambda i, j: - self (i, j))
     

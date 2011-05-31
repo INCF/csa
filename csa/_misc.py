@@ -24,6 +24,7 @@ import connset as cs
 import valueset as vs
 import _elementary
 
+from csaobject import *
 
 class Random (cs.Operator):
     def __mul__ (self, valueSet):
@@ -63,6 +64,9 @@ class ValueSetRandomMask (cs.Mask):
                 if random.random () < self.valueSet (i, j):
                     yield (i, j)
 
+    def _to_xml (self):
+        return CSAObject.apply ('times', 'random', self.valueSet._to_xml ())
+
 
 class Disc (cs.Operator):
     def __init__ (self, r):
@@ -91,13 +95,14 @@ class Gaussian (cs.Operator):
         self.cutoff = cutoff
         
     def __mul__ (self, metric):
-        return GaussianValueSet (self.sigma, self.cutoff, metric)
+        return GaussianValueSet (self, metric)
 
 
-class GaussianValueSet (vs.ValueSet):
-    def __init__ (self, sigma, cutoff, metric):
-        self.sigma22 = 2* sigma * sigma
-        self.cutoff = cutoff
+class GaussianValueSet (OpExprValue, vs.ValueSet):
+    def __init__ (self, operator, metric):
+        OpExprValue.__init__ (self, operator, metric)
+        self.sigma22 = 2 * operator.sigma * operator.sigma
+        self.cutoff = operator.cutoff
         self.metric = metric
 
     def __call__ (self, i, j):
