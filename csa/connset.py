@@ -356,9 +356,9 @@ class NoParIterator ():
 
 
 class BinaryMask (BinaryCSAObject, Mask):
-    def __init__ (self, operator, op1, op2):
+    def __init__ (self, operator, op1, op2, precedence):
         Mask.__init__ (self)
-        BinaryCSAObject.__init__ (self, operator, op1, op2)
+        BinaryCSAObject.__init__ (self, operator, op1, op2, precedence)
 
     def startIteration (self, state):
         obj = copy.copy (self)
@@ -369,7 +369,7 @@ class BinaryMask (BinaryCSAObject, Mask):
 
 class MaskIntersection (BinaryMask):
     def __init__ (self, op1, op2):
-        BinaryMask.__init__ (self, '*', op1, op2)
+        BinaryMask.__init__ (self, '*', op1, op2, 1)
 
     def iterator (self, low0, high0, low1, high1, state):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
@@ -398,7 +398,7 @@ class FiniteMaskIntersection (Finite, MaskIntersection):
 
 class MaskMultisetSum (BinaryMask):
     def __init__ (self, op1, op2):
-        BinaryMask.__init__ (self, "+", op1, op2)
+        BinaryMask.__init__ (self, "+", op1, op2, 0)
 
     def iterator (self, low0, high0, low1, high1, state):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
@@ -448,7 +448,7 @@ class FiniteMaskMultisetSum (Finite, MaskMultisetSum):
 
 class MaskDifference (BinaryMask):
     def __init__ (self, op1, op2):
-        BinaryMask.__init__ (self, "-", op1, op2)
+        BinaryMask.__init__ (self, "-", op1, op2, 0)
 
     def iterator (self, low0, high0, low1, high1, state):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
@@ -664,7 +664,7 @@ CSAObject.tag_map[CSA + IntervalSetMask.tag] = (intervalSetMask, 2)
 class ISetBoundedMask (FiniteMask):
     def __init__ (self, set0, set1, mask):
         FiniteMask.__init__ (self)
-        self.precedence = 2
+        self.precedence = 1
         self.set0 = set0
         self.set1 = set1
         self.subMask = mask

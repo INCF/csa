@@ -44,7 +44,7 @@ def to_xml (obj):
 #
 # 0 + -
 # 1 *
-# 2 ~ operator
+# 2 ~
 
 class CSAObject (object):
     tag_map = {}
@@ -66,7 +66,7 @@ class CSAObject (object):
             return self.repr ()
 
     def _repr_applyop (self, op_repr, obj):
-        return '%s*%s' % (op_repr, obj._repr_as_op2 (2))
+        return '%s*%s' % (op_repr, obj._repr_as_op2 (1))
 
     def to_xml (self):
         return E (csa_tag, self._to_xml (), xmlns=csa_namespace)
@@ -133,17 +133,16 @@ class BinaryCSAObject (CSAObject):
     def repr (self):
         if isinstance (self.op1, CSAObject):
             op1 = self.op1.repr ()
+            if self.op1.precedence < self.precedence:
+                op1 = "(%s)" % op1
         else:
             op1 = self.op1
-        if isinstance (op1, CSAObject) and op1.precedence < self.precedence:
-            op1 = "(%s)" % op1
 
         if isinstance (self.op2, CSAObject):
-            op2 = self.op2.repr ()
+            op2 = self.op2._repr_as_op2 (self.precedence)
         else:
             op2 = self.op2
-        if isinstance (op2, CSAObject) and op2.precedence <= self.precedence:
-            op2 = "(%s)" % op2
+            
         return "%s%s%s" % (op1, self.name, op2)
 
     def _to_xml (self):
