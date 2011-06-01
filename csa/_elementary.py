@@ -78,7 +78,7 @@ class ConstantRandomMask (cs.Mask):
     def _to_xml (self):
         return CSAObject.apply (ConstantRandomMask.tag, self.p)
 
-CSAObject.tag_map[CSA + ConstantRandomMask.tag] = (ConstantRandomMask, 1)
+registerTag (ConstantRandomMask.tag, ConstantRandomMask, 1)
 
 
 class SampleNRandomOperator (cs.Operator):
@@ -99,7 +99,7 @@ class SampleNRandomOperator (cs.Operator):
     def _to_xml (self):
         return CSAObject.apply (SampleNRandomOperator.tag, self.N)
 
-CSAObject.tag_map[CSA + SampleNRandomOperator.tag] = (SampleNRandomOperator, 1)
+registerTag (SampleNRandomOperator.tag, SampleNRandomOperator, 1)
 
 
 class SampleNRandomMask (cs.Finite,cs.Mask):
@@ -190,6 +190,8 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
 
 
 class FanInRandomOperator (cs.Operator):
+    tag = 'random_fanIn'
+    
     def __init__ (self, fanIn):
         self.fanIn = fanIn
 
@@ -198,6 +200,14 @@ class FanInRandomOperator (cs.Operator):
                and isinstance (other, cs.Mask), \
                'expected finite mask'
         return FanInRandomMask (self.fanIn, other)
+
+    def repr (self):
+        return 'random(fanIn=%s)' % self.fanIn
+
+    def _to_xml (self):
+        return CSAObject.apply (FanInRandomOperator.tag, self.fanIn)
+
+registerTag (FanInRandomOperator.tag, FanInRandomOperator, 1)
 
 
 # This code is copied and modified from SampleNRandomMask
@@ -284,8 +294,19 @@ class FanInRandomMask (cs.Finite,cs.Mask):
                 yield (i, j)
             m += 1
 
+    def repr (self):
+        return self._repr_applyop ('random(fanIn=%s)' % self.fanIn, self.mask)
+
+    def _to_xml (self):
+        return E ('apply',
+                  E ('times'),
+                  CSAObject.apply (FanInRandomOperator.tag, self.fanIn),
+                  self.mask._to_xml ())
+
 
 class FanOutRandomOperator (cs.Operator):
+    tag = 'random_fanOut'
+    
     def __init__ (self, fanOut):
         self.fanOut = fanOut
 
@@ -294,3 +315,11 @@ class FanOutRandomOperator (cs.Operator):
                and isinstance (other, cs.Mask), \
                'expected finite mask'
         return FanInRandomMask (self.fanOut, other.transpose ()).transpose ()
+
+    def repr (self):
+        return 'random(fanOut=%s)' % self.fanOut
+
+    def _to_xml (self):
+        return CSAObject.apply (FanOutRandomOperator.tag, self.fanOut)
+
+registerTag (FanOutRandomOperator.tag, FanOutRandomOperator, 1)
