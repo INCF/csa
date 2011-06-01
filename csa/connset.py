@@ -506,13 +506,15 @@ class ExplicitMask (FiniteMask):
 
 
 class IntervalSetMask (Mask):
+    tag = 'cross'
+    
     def __init__ (self, set0, set1):
         Mask.__init__ (self)
         self.set0 = set0
         self.set1 = set1
 
     def repr (self):
-        return 'cross(%r, %r)' % (self.set0, self.set1)
+        return 'cross(%s, %s)' % (self.set0.repr (), self.set1.repr ())
 
     def __contains__ (self, c):
         return c[0] in self.set0 and c[1] in self.set1
@@ -572,6 +574,9 @@ class IntervalSetMask (Mask):
                       'sums of overlapping IntervalSetMask:s not yet supported'
         else:
             return FiniteMask.multisetSum (self, other)
+
+    def _to_xml (self):
+        return CSAObject.apply (IntervalSetMask.tag, self.set0, self.set1)
 
 
 class FiniteISetMask (FiniteMask, IntervalSetMask):
@@ -644,6 +649,8 @@ def intervalSetMask (set0, set1):
             return FiniteTargetsISetMask (set0, set1)
         else:
             return IntervalSetMask (set0, set1)
+
+CSAObject.tag_map[CSA + IntervalSetMask.tag] = (intervalSetMask, 2)
 
 
 class ISetBoundedMask (FiniteMask):

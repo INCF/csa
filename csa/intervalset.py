@@ -18,11 +18,15 @@
 
 import sys
 
+from csaobject import *
+
 infinity = sys.maxint - 1
 
 # Interval sets are represented as ordered lists of closed intervals
 #
-class IntervalSet (object):
+class IntervalSet (CSAObject):
+    tag = 'IntervalSet'
+    
     @staticmethod
     # return true if tuple i represents a well-formed interval
     def goodInterval (i):
@@ -93,7 +97,7 @@ class IntervalSet (object):
         else:
             (self.intervals, self.nIntegers) = self.coerce (s)
 
-    def __repr__ (self):
+    def repr (self):
         return 'IntervalSet(%r)' % self.intervals
 
     def __len__ (self):
@@ -298,12 +302,27 @@ class IntervalSet (object):
         iset.nIntegers = N
         return iset
 
+    def _to_xml (self):
+        intervals = [ E ('interval', E ('cn', str (i)), E ('cn', str (j)))
+                      for (i, j) in self.intervals ]
+        return E (IntervalSet.tag, *intervals)
+
+    @classmethod
+    def from_xml (cls, element):
+        intervals = []
+        for ivalElement in element.getchildren ():
+            ival = ivalElement.getchildren ()
+            intervals.append ((int (ival[0].text), int (ival[1].text)))
+        return IntervalSet (intervals)
+
+CSAObject.tag_map[CSA + IntervalSet.tag] = (IntervalSet, CUSTOM)
+
 
 class ComplementaryIntervalSet (IntervalSet):
     def __init__ (self, s = [], intervals = None, nIntegers = None):
         IntervalSet.__init__ (self, s, intervals, nIntegers)
 
-    def __repr__ (self):
+    def repr (self):
         if not self.intervals:
             return 'N'
         else:
@@ -388,4 +407,13 @@ class ComplementaryIntervalSet (IntervalSet):
     def union (self, other):
         return ~(~self).intersection (~other)
 
+    def _to_xml (self):
+        if not self.intervals:
+            return E ('N')
+        else:
+            return E ('apply', E ('complement'), IntervalSet._to_xml (self))
+
+
 N = ComplementaryIntervalSet ([])
+
+CSAObject.tag_map[CSA + 'N'] = (N, SINGLETON)

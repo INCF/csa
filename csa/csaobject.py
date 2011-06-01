@@ -26,7 +26,8 @@ csa_tag = 'CSA'
 csa_namespace = 'http://software.incf.org/software/csa/1.0'
 CSA = '{%s}' % csa_namespace
 
-CUSTOM = -2
+CUSTOM = -3
+OPERATOR = -2
 SINGLETON = -1
 
 def to_xml (obj):
@@ -37,21 +38,18 @@ def to_xml (obj):
     elif isinstance (obj, CSAObject):
         return obj._to_xml ()
     else:
-        raise RunTimeError, "don't know how to turn %s into xml" % obj
-
-class Operator (object):
-    pass
+        raise RuntimeError, "don't know how to turn %s into xml" % obj
 
 # precedence levels:
 #
 # 0 + -
 # 1 *
-# 2 ~
+# 2 ~ operator
 
 class CSAObject (object):
     tag_map = {}
 
-    def __init__ (self, name, precedence = 0):
+    def __init__ (self, name, precedence = 3):
         self.name = name
         self.precedence = precedence
 
@@ -60,6 +58,13 @@ class CSAObject (object):
 
     def repr (self):
         return self.name
+
+    def _repr_applyop (self, op_repr, obj):
+        obj_repr = obj.repr ()
+        if isinstance (obj, BinaryCSAObject) and obj.precedence <= 2:
+            return '%s*(%s)' % (op_repr, obj_repr)
+        else:
+            return '%s*%s' % (op_repr, obj_repr)
 
     def to_xml (self):
         return E (csa_tag, self._to_xml (), xmlns=csa_namespace)
@@ -85,11 +90,13 @@ class CSAObject (object):
                 return operands[0].__sub__ (operands[1])
             elif operator == CSA + 'times':
                 return operands[0].__mul__ (operands[1])
+            elif operator == CSA + 'complement':
+                return operands[0].__invert__ ()
             else:
                 # Function or operator application
                 entry = CSAObject.tag_map[operator]
                 obj = entry[0]
-                if isinstance (obj, Operator):
+                if entry[1] == OPERATOR:
                     return obj * operands[1]
                 else:
                     return obj (*operands)
@@ -127,14 +134,14 @@ class BinaryCSAObject (CSAObject):
         else:
             op1 = self.op1
         if isinstance (op1, CSAObject) and op1.precedence < self.precedence:
-            op1 = "(%s)"
+            op1 = "(%s)" % op1
 
         if isinstance (self.op2, CSAObject):
             op2 = self.op2.repr ()
         else:
             op2 = self.op2
-        if isinstance (op2, CSAObject) and op2.precedence < self.precedence:
-            op2 = "(%s)"
+        if isinstance (op2, CSAObject) and op2.precedence <= self.precedence:
+            op2 = "(%s)" % op2
         return "%s%s%s" % (op1, self.name, op2)
 
     def _to_xml (self):
@@ -154,9 +161,16 @@ class BinaryCSAObject (CSAObject):
             op = self.name
         return E ('apply', E (op), op1, op2)
 
+
 class OpExprValue (BinaryCSAObject):
     def __init__ (self, operator, operand):
         BinaryCSAObject.__init__ (self, '*', operator, operand, 1)
+
+
+class Operator (CSAObject):
+    def __init__ (self):
+        CSAObject.__init__ (self, 'ioperator')
+
 
 def parse (filename):
     doc = etree.parse (filename)

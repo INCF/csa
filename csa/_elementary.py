@@ -82,6 +82,8 @@ CSAObject.tag_map[CSA + ConstantRandomMask.tag] = (ConstantRandomMask, 1)
 
 
 class SampleNRandomOperator (cs.Operator):
+    tag = 'random_N'
+    
     def __init__ (self, N):
         self.N = N
 
@@ -90,6 +92,14 @@ class SampleNRandomOperator (cs.Operator):
                and isinstance (other, cs.Mask), \
                'expected finite mask'
         return SampleNRandomMask (self.N, other)
+
+    def repr (self):
+        return 'random(N = %s)' % self.N
+
+    def _to_xml (self):
+        return CSAObject.apply (SampleNRandomOperator.tag, self.N)
+
+CSAObject.tag_map[CSA + SampleNRandomOperator.tag] = (SampleNRandomOperator, 1)
 
 
 class SampleNRandomMask (cs.Finite,cs.Mask):
@@ -168,6 +178,15 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
             for i in s:
                 yield (i, j)
             m += 1
+
+    def repr (self):
+        return self._repr_applyop ('random(N=%s)' % self.N, self.mask)
+
+    def _to_xml (self):
+        return E ('apply',
+                  E ('times'),
+                  CSAObject.apply (SampleNRandomOperator.tag, self.N),
+                  self.mask._to_xml ())
 
 
 class FanInRandomOperator (cs.Operator):
