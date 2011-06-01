@@ -173,8 +173,11 @@ class Operator (CSAObject):
         CSAObject.__init__ (self, 'ioperator')
 
 
-def parse (filename):
-    doc = etree.parse (filename)
-    root = doc.getroot()
+def from_xml (root):
     assert root.nsmap[None] == csa_namespace
     return CSAObject.from_xml (root.getchildren ()[0])
+
+
+def parse (filename):
+    doc = etree.parse (filename)
+    return from_xml (doc.getroot())

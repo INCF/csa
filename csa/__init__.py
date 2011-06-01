@@ -24,5 +24,5 @@ from elementary import *
 #from arithmetic import *
 from misc import *
 from geometry import *
-from csaobject import parse
+from csaobject import parse, from_xml
 #from plot import *
