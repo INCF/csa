@@ -513,8 +513,12 @@ class IntervalSetMask (Mask):
         self.set0 = set0
         self.set1 = set1
 
+    @staticmethod
+    def _sets_to_repr (set0, set1):
+        return 'cross(%s, %s)' % (set0.repr (), set1.repr ())
+    
     def repr (self):
-        return 'cross(%s, %s)' % (self.set0.repr (), self.set1.repr ())
+        return self._sets_to_repr (self.set0, self.set1)
 
     def __contains__ (self, c):
         return c[0] in self.set0 and c[1] in self.set1
@@ -575,8 +579,12 @@ class IntervalSetMask (Mask):
         else:
             return FiniteMask.multisetSum (self, other)
 
+    @staticmethod
+    def _sets_to_xml (set0, set1):
+        return CSAObject.apply (IntervalSetMask.tag, set0, set1)
+
     def _to_xml (self):
-        return CSAObject.apply (IntervalSetMask.tag, self.set0, self.set1)
+        return self._sets_to_xml (self.set0, self.set1)
 
 
 class FiniteISetMask (FiniteMask, IntervalSetMask):
@@ -656,6 +664,7 @@ CSAObject.tag_map[CSA + IntervalSetMask.tag] = (intervalSetMask, 2)
 class ISetBoundedMask (FiniteMask):
     def __init__ (self, set0, set1, mask):
         FiniteMask.__init__ (self)
+        self.precedence = 2
         self.set0 = set0
         self.set1 = set1
         self.subMask = mask
@@ -736,6 +745,15 @@ class ISetBoundedMask (FiniteMask):
                 pass
             i1 = iterator1.next ()
 
+    def repr (self):
+        return '%s*%s' % (IntervalSetMask._sets_to_repr (self.set0, self.set1),
+                          self.subMask._repr_as_op2 (self.precedence))
+
+    def _to_xml (self):
+        return E ('apply',
+                  E ('times'),
+                  IntervalSetMask._sets_to_xml (self.set0, self.set1),
+                  self.subMask._to_xml ())
 
 # The ExplicitCSet captures the original value sets before coercion.
 # It is used in the implementation of the "cset" constructor.

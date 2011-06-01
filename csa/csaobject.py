@@ -59,12 +59,14 @@ class CSAObject (object):
     def repr (self):
         return self.name
 
-    def _repr_applyop (self, op_repr, obj):
-        obj_repr = obj.repr ()
-        if isinstance (obj, BinaryCSAObject) and obj.precedence <= 2:
-            return '%s*(%s)' % (op_repr, obj_repr)
+    def _repr_as_op2 (self, parentPrecedence):
+        if self.precedence <= parentPrecedence:
+            return '(%s)' % self.repr ()
         else:
-            return '%s*%s' % (op_repr, obj_repr)
+            return self.repr ()
+
+    def _repr_applyop (self, op_repr, obj):
+        return '%s*%s' % (op_repr, obj._repr_as_op2 (2))
 
     def to_xml (self):
         return E (csa_tag, self._to_xml (), xmlns=csa_namespace)

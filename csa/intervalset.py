@@ -25,7 +25,7 @@ infinity = sys.maxint - 1
 # Interval sets are represented as ordered lists of closed intervals
 #
 class IntervalSet (CSAObject):
-    tag = 'IntervalSet'
+    tag = 'intervalset'
     
     @staticmethod
     # return true if tuple i represents a well-formed interval
