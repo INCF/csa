@@ -81,6 +81,8 @@ class CSAObject (object):
             operands = [ cls.from_xml (e) for e in nodes[1:] ]
             if operator == CSA + 'plus':
                 return operands[0].__add__ (operands[1])
+            elif operator == CSA + 'minus':
+                return operands[0].__sub__ (operands[1])
             elif operator == CSA + 'times':
                 return operands[0].__mul__ (operands[1])
             else:
