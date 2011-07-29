@@ -27,6 +27,8 @@ from csaobject import *
 # which is also the base class for masks
 #
 class CSet (CSAObject):
+    tag = 'cset'
+    
     def __init__ (self, mask, *valueSets):
         CSAObject.__init__ (self, "icset");
         self._mask = mask
@@ -997,3 +999,32 @@ class MaskPartition (Finite, Mask):
 
     def iterator (self, low0, high0, low1, high1, state):
         raise RuntimeError, 'iterator called on wrong object'
+
+
+class CSetPartition (CSet):
+    def __init__ (self, c, partitions, selected, seed):
+        #*fixme* How can we know when this is not necessary?
+        
+        self.subCSet = (partitions[selected] * c).c
+        CSet.__init__ (self, self.subCSet.mask (), *self.subCSet.valueSets)
+
+        self.state = { #'domain' : domain,
+                       'partitions' : partitions,
+                       'selected' : selected }
+        if seed != None:
+            self.state['seed'] = seed
+
+    def makeFiniteValueSet (self, k, bounds):
+        return self.subCSet.makeFiniteValueSet (k, bounds);
+
+    def bounds (self):
+        return self.subCSet.bounds ()
+
+    def startIteration (self, state):
+        for key in self.state:
+            state[key] = self.state[key]
+        return self.subCSet.startIteration (state)
+
+    def iterator (self, low0, high0, low1, high1, state):
+        raise RuntimeError, 'iterator called on wrong object'
+    

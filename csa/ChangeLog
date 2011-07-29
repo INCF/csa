@@ -1,3 +1,7 @@
+2011-07-29  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* connset.py (CSetPartition): New class.
+
 2011-01-18  Mikael Djurfeldt  <mikael@djurfeldt.com>
 
 	* elementary.py (vset): New function.

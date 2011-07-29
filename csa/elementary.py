@@ -85,7 +85,7 @@ def partition (c, masks, selected, seed = None):
     if isinstance (c, _cs.Mask):
         return _cs.MaskPartition (c, masks, selected, seed)
     elif isinstance (c, _cs.ConnectionSet):
-        return _cs.ConnectionSet (_cs.CSetPartition (c.c, masks, selected, seed))
+        return _cs.ConnectionSet (_cs.CSetPartition (c, masks, selected, seed))
 
 # Utilities
 #

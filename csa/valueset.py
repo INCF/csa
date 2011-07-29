@@ -19,6 +19,9 @@
 from csaobject import *
 
 class ValueSet (CSAObject):
+    def __init__ (self):
+        CSAObject.__init__ (self, "valueset")
+        
     def __neg__ (self):
         return GenericValueSet (lambda i, j: - self (i, j))
     
@@ -57,6 +60,7 @@ class ValueSet (CSAObject):
 
 class QuotedValueSet (ValueSet):
     def __init__ (self, expression):
+        ValueSet.__init__ (self)
         self.expression = expression
 
     def __call__ (self, i, j):
@@ -88,6 +92,7 @@ class QuotedValueSet (ValueSet):
 
 class GenericValueSet (ValueSet):
     def __init__ (self, function):
+        ValueSet.__init__ (self)
         self.function = function
 
     def __call__ (self, i, j):
@@ -119,6 +124,7 @@ class GenericValueSet (ValueSet):
 
 class AffineValueSet (ValueSet):
     def __init__ (self, constant, coefficient, function):
+        ValueSet.__init__ (self)
         self.const = constant
         self.coeff = coefficient
         self.func = function
