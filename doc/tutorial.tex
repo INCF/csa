@@ -2,6 +2,7 @@
 
 \usepackage{listings}
 \usepackage{color}
+\usepackage{graphicx}
 \usepackage{makeidx}
 
 % Use the head environment around method heads
@@ -30,7 +31,7 @@
 \newcommand{\ret}{\emph{return value}}
 \newcommand{\self}{\emph{self}}
 
-\title{Python-csa tutorial v0.1}
+\title{Python-csa tutorial v0.2}
 \author{Mikael Djurfeldt}
 \date{2011-01-17}
 
@@ -93,7 +94,7 @@ connection sets without any values associated are called masks.
 
 \chapter{Tutorial}\label{sec:tutorial}
 
-\section{Basics}
+\section{Basic concepts}
 
 To get access to the CSA in Python, type:
 
@@ -116,12 +117,21 @@ type:
 \end{code}
 
 One-to-one connectivity (where source node 0 is connected to target
-node 0, source 1 to target 1 etc) is represented by the mask oneToOne:
+node 0, source 1 to target 1 etc) is represented by the mask oneToOne (Figure \ref{fig:oneToOne}):
 
 \begin{code}{}
   show (oneToOne)
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/oneToOne}
+    \caption[oneToOne mask]{\label{fig:oneToOne}
+      \expr{oneToOne}
+    }
+  \end{center}
+\end{figure}
+\pagebreak
 The default portion displayed by "show" is (0, 29) x (0, 29).
 (0, 99) x (0, 99) can be displayed using:
 
@@ -132,65 +142,136 @@ The default portion displayed by "show" is (0, 29) x (0, 29).
 If source and target set is the same, oneToOne describes
 self-connections.  We can use CSA to compute the set of connections
 consisting of all possible connections except for self-connections
-using the set difference operator "-":
+using the set difference operator "-" (Figure \ref{fig:setDifference}):
 
 \begin{code}{}
   show (full - oneToOne)
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/setDifference}
+    \caption[Set difference]{\label{fig:setDifference}
+      \expr{full - oneToOne}
+    }
+  \end{center}
+\end{figure}
+
 Finite connection sets can be represented using either lists of
-connections, with connections represented as tuples:
+connections, with connections represented as tuples (Figure
+\ref{fig:twoPoints}):
 
 \begin{code}{}
   show ([(22, 7), (8, 23)])
 \end{code}
 
-or using the Cartesian product of intervals:
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/twoPoints}
+    \caption[Mask with two connections]{\label{fig:twoPoints}
+      \expr{[(22, 7), (8, 23)]}
+    }
+  \end{center}
+\end{figure}
+
+or using the Cartesian product of intervals (Figure \ref{fig:cartesian}):
 
 \begin{code}{}
   show (cross (xrange (10), xrange (20)))
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/cartesian}
+    \caption[Cartesian mask]{\label{fig:cartesian}
+      \expr{xrange (10), xrange (20)}
+    }
+  \end{center}
+\end{figure}
+\pagebreak
 We can form a finite version of the infinite oneToOne by taking the
-intersection "*" with a finite connection set:
+intersection "*" with a finite connection set (Figure \ref{fig:intersection}):
 
 \begin{code}{}
   c = cross (xrange (10), xrange (10)) * oneToOne
   show (c)
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/intersection}
+    \caption[Finite part of infinite set]{\label{fig:intersection}
+      \expr{cross (xrange (10), xrange (10)) * oneToOne}
+    }
+  \end{center}
+\end{figure}
+
 Finite connection sets can be tabulated:
 
 \begin{code}{}
-  tabulate (c)
+  >>> tabulate(c)
+  0       0
+  1       1
+  2       2
+  3       3
+  4       4
+  5       5
+  6       6
+  7       7
+  8       8
+  9       9      
 \end{code}
-
+\pagebreak
 In Python, finite connection sets provide an iterator interface:
 
 \begin{code}{}
-  for x in cross (xrange (10), xrange (10)) * oneToOne:
-    print x
+  >>> for x in cross (xrange (4), xrange (4)) * oneToOne:
+  ...   print x
+  ... 
+  (0, 0)
+  (1, 1)
+  (2, 2)
+  (3, 3)
 \end{code}
 
-\section{Random connectivity and the block operator}
+\section{Random connectivity}
 
 Connectivity where the existence of each possible connection is
 determined by a Bernoulli trial with probability p is expressed with
-the random mask random (p), e.g.:
+the random mask random (p), e.g. (Figure \ref{fig:random}):
 
 \begin{code}{}
   show (random (0.5))
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/random}
+    \caption[Random mask]{\label{fig:random}
+      \expr{random (0.5)}
+    }
+  \end{center}
+\end{figure}
+
+\section{The block operator}
 The block operator expands each connection in the operand into a
-rectangular block in the resulting connection matrix, e.g.:
+rectangular block in the resulting connection matrix, e.g. (Figure \ref{fig:blockRandom}):
 
 \begin{code}{}
   show (block (5,3) * random (0.5))
 \end{code}
 
-Note that "*" here means operator application.  There is also a
-quadratic version of the operator:
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/blockRandom}
+    \caption[Block expanded random mask]{\label{fig:blockRandom}
+      \expr{block (5,3) * random (0.5)}
+    }
+  \end{center}
+\end{figure}
+
+Note that "*" here means operator application (see section
+\ref{sec:opap}).  There is also a quadratic version of the operator:
 
 \begin{code}{}
   show (block (10) * random (0.7))
@@ -202,6 +283,18 @@ complex mask:
 \begin{code}{}
   show (block (10) * random (0.7) * random (0.5) - oneToOne)
 \end{code}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/brro}
+    \caption[Random mask]{\label{fig:brro}
+      \expr{block (10) * random (0.7) * random (0.5) - oneToOne}
+    }
+  \end{center}
+\end{figure}
+
+The block operator is especially useful when creating connectivity
+with hierarchical substructure, such as a set of cortical columns.
 
 \section{Geometry}
 
@@ -222,12 +315,30 @@ and can be displayed like this:
   gplot2d (g, 900)
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/random2d}
+    \caption[Random geometry]{\label{fig:random2d}
+      \expr{gplot2d (random2d (900), 900)}
+    }
+  \end{center}
+\end{figure}
+
 Alternatively, we can arrange indices in a 30 x 30 grid within the
 unit square:
 
 \begin{code}{}
   g = grid2d (30)
 \end{code}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/grid2d}
+    \caption[Random geometry]{\label{fig:grid2d}
+      \expr{gplot2d (grid2d (30), 900)}
+    }
+  \end{center}
+\end{figure}
 
 We can now define the euclidean metric on this grid:
 
@@ -244,17 +355,31 @@ distance d (i, j) < r:
 \end{code}
 
 To examine the result we can employ the function gplotsel2d (g, c, i)
-which displays the targets g (j) of i in the connection set c:
+which displays the targets g (j) of i in the connection set c (Figure
+\ref{fig:disc}):
 
 \begin{code}{}
   gplotsel2d (g, c, 434)
 \end{code}
+\noindent [A known bug in the current implementation makes the above
+  expression crash.  This only happens for infinite sets like \expr{c}
+  and can be amended by intersecting it with a finite set: \expr{cross
+    (xrange (900), xrange (900)) * c}.]
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/disc}
+    \caption[Disc geometry]{\label{fig:disc}
+      Projection from source neuron \#434 in \expr{disc (0.3) * d}.
+    }
+  \end{center}
+\end{figure}
 
 In the case where the connection set represents a projection between
 two different coordinate systems, we define one geometry function for
-each.  In the following example g1 is direction in visual space in arc
-minutes while g2 is position in the cortical representation of the
-Macaque fovea in mm:
+each.  In the following example \expr{g1} is direction in visual space
+in arc minutes while \expr{g2} is position in the cortical
+representation of the Macaque fovea in mm:
 
 \begin{code}{}
   g1 = grid2d (30)
@@ -279,6 +404,15 @@ To see how the grid g1 is transformed into cortical space, we type:
   gplot2d (GvspaceToCx * g1, 900)
 \end{code}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/projection}
+    \caption[Logarithmic projection]{\label{fig:projection}
+      \expr{gplot2d (GvspaceToCx * g1, 900)}
+    }
+  \end{center}
+\end{figure}
+
 The inverse projection is defined:
 
 \begin{code}{}
@@ -297,11 +431,73 @@ use the disc operator:
   c = disc (0.1) * euclidMetric2d (g1, GcxToVspace * g2)
 \end{code}
 
-Again, we use gplotsel2d to check the result:
+Again, we use gplotsel2d to check the result (Figure \ref{fig:visualDisc}):
 
 \begin{code}{}
   gplotsel2d (g2, c, 282)
 \end{code}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{figures/visualDisc}
+    \caption[Random geometry]{\label{fig:visualDisc}
+      \expr{disc (0.1) * euclidMetric2d (g1, GcxToVspace * g2)}
+    }
+  \end{center}
+\end{figure}
+\clearpage
+\pagebreak
+\section{A network with gaussian connectivity}
+In the following example we represent the connectivity of a network
+with excitatory and inhibitory neurons and gaussian connectivity in a
+random geometry using a single connection-set (Figure \ref{fig:gaussnet}).
+
+\begin{code}{Network with gaussian geometry-dependent connectivity}
+from csa import *
+
+# Create index intervals for excitatory, inhibitory
+# and all cells
+e = ival (0, 599)
+i = ival (600, 899)
+a = e + i
+
+# Create geometry function g and metric d
+g = random2d (900)
+d = euclidMetric2d (g)
+
+# Excitatory and inhibitory conductances, computed as
+# gaussian value sets (provides the gaussian of the
+# distance for every index pair)
+g_e = gaussian (0.1, 0.3) * d
+g_i = gaussian (0.2, 0.3) * d
+
+# Create connection-sets with gaussian dependent random
+# masks, gaussian dependent conductance and distance
+# dependent delay: (mask, conductance, delay)
+c_e = cset (random * g_e, g_e, d)
+c_i = cset (random * g_i, -g_i, d)
+
+# Combine excitatory and inhibitory connectivity into one
+# network using intersection (*) and multiset sum (+)
+# operators
+c = cross (e, a) * c_e + cross (i, a) * c_i
+
+# We may also plot the outgoing connections from one
+# excitatory neuron around coordinate (0.33, 0.5) and one
+# inhibitory neuron around coordinate (0.67, 0.5)
+sources = [g.inverse(0.33,0.5,e), g.inverse(0.67,0.5,i)]
+gplotsel2d (g, c, sources, value=0, range=[-1,1])
+\end{code}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{figures/gaussnet}
+    \caption[Projections of an excitatory and an inhibitory neuron]{\label{fig:gaussnet}
+      Projections of an excitatory (warm colors) and an inhibitory
+      (cold colors).
+    }
+  \end{center}
+\end{figure}
 
 \chapter{Reference}\label{sec:reference}
 
@@ -334,7 +530,7 @@ instance of the class \cls{ConnectionSet} is expected, it is OK to
 pass an instance of \cls{Mask}.
 
 \begin{head}{__len__}
-  __len__ (\self)
+  __len__ (self)
 \end{head}
 \begin{parameters}
   \ret &%
@@ -348,7 +544,7 @@ An error is reported if this connection-set isn't finite.
 \end{code}
 
 \begin{head}{__iter__}
-  __iter__ (\self)
+  __iter__ (self)
 \end{head}
 \begin{parameters}
   \ret &%
@@ -375,8 +571,9 @@ A mask gives information about which connections exist.  It can be
 regarded as a set of connections, represented by their source and
 target indices.  In the CSA, a connection-set with no associated
 values is a mask.  In the python-csa implementation, an attempt to
-construct a connection-set with zero associated values, yileds an
-instance of the class \cls{Mask}.
+construct a connection-set with zero associated values, yields an
+instance of the class \cls{Mask}.  In cases where a mask is expected,
+a python list of (source, target) tuples can also be passed.
 
 The class \cls{Mask} has the same public methods (\expr{__len__},
 \expr{__iter__}) as the class \cls{ConnectionSet}.
@@ -554,8 +751,8 @@ Tabulate can be used to print connection-sets during development.
 \end{head}
 \begin{parameters}
 \end{parameters}
-This constant \cls{Mask} represents the set of no connections.
-Iterating over it results in nothing, no matter how hard you try.
+This constant \cls{Mask} represents the set of no connection.
+Iterating results in nothing, no matter how hard you try.
 
 \subsection{full}\index{full}
 
@@ -633,7 +830,7 @@ The arithmetic operators on connection-sets which are defined in the
 connection-set algebra are not yet implemented in the python-csa demo
 implementation.
 
-\section{Operator application}
+\section{Operator application}\label{sec:opap}
 The operator application operator is used to apply unary
 connection-set algebra operators to their operand:
 \par\vspace{4mm}\hrule\par\vspace{1mm}
@@ -711,10 +908,13 @@ multiplication and set intersection operators.
 
 \subsection{block}\index{block}
 
-\begin{head}{}
-  block (M, [N])
+\begin{head}{block}
+  block (M, N)
+  block (M)
 \end{head}
 \begin{parameters}
+  \fa{M} & \\
+  \fa{N} & \\
 \end{parameters}
 
 \subsection{block1}\index{block1}
