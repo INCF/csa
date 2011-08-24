@@ -242,7 +242,8 @@ class FanInRandomMask (cs.Finite,cs.Mask):
                 seed = state['seed']
             else:
                 seed = 'FanInRandomMask'
-            numpy.random.seed (hash (seed))
+            # Numpy.random.seed requires unsigned integer
+            numpy.random.seed (abs (hash (seed)))
 
             selected = state['selected']
             obj.mask = partitions[selected]
