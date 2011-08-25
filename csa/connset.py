@@ -975,6 +975,8 @@ class State (dict):
 
 class MaskPartition (Finite, Mask):
     def __init__ (self, mask, partitions, selected, seed):
+        Mask.__init__ (self)
+
         #*fixme* How can we know when this is not necessary?
         self.subMask = partitions[selected] * mask
 

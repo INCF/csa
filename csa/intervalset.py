@@ -105,9 +105,9 @@ class IntervalSet (CSAObject):
 
     def __contains__ (self, n):
         for i in self.intervals:
-            if n < i[0]:
+            if n > i[1]:
                 continue
-            elif n <= i[1]:
+            elif n >= i[0]:
                 return True
             else:
                 return False

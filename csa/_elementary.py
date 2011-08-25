@@ -212,7 +212,7 @@ registerTag (FanInRandomOperator.tag, FanInRandomOperator, 1)
 
 # This code is copied and modified from SampleNRandomMask
 # *fixme* refactor code and eliminate code duplication
-class FanInRandomMask (cs.Finite,cs.Mask):
+class FanInRandomMask (cs.Finite, cs.Mask):
     # The algorithm based on first sampling the number of connections
     # per partition has been arrived at through discussions with Hans
     # Ekkehard Plesser.
