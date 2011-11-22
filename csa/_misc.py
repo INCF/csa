@@ -89,6 +89,38 @@ class DiscMask (cs.Mask):
                     yield (i, j)
 
 
+class Rectangle (cs.Operator):
+    def __init__ (self, width, height):
+        self.width = width
+        self.height = height
+
+    def __mul__ (self, gFunction):
+        if isinstance (gFunction, tuple):
+            return RectangleMask (self.width, self.height,
+                                  gFunction[0], gFunction[1])
+        else:
+            return RectangleMask (self.width, self.height, gFunction, gFunction)
+
+
+class RectangleMask (cs.Mask):
+    def __init__ (self, width, height, g0, g1):
+        cs.Mask.__init__ (self)
+        self.hwidth = width / 2.0
+        self.hheight = height / 2.0
+        self.g0 = g0
+        self.g1 = g1
+
+    def iterator (self, low0, high0, low1, high1, state):
+        for j in xrange (low1, high1):
+            for i in xrange (low0, high0):
+                p0 = self.g0 (i)
+                p1 = self.g1 (j)
+                dx = p0[0] - p1[0]
+                dy = p0[1] - p1[1]
+                if abs (dx) < self.hwidth and abs (dy) < self.hheight:
+                    yield (i, j)
+
+
 class Gaussian (cs.Operator):
     def __init__ (self, sigma, cutoff):
         self.sigma = sigma

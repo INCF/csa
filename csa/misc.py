@@ -21,6 +21,9 @@ import _misc
 def disc (r):
     return _misc.Disc (r)
 
+def rectangle (width, height):
+    return _misc.Rectangle (width, height)
+
 def gaussian (sigma, cutoff):
     return _misc.Gaussian (sigma, cutoff)
 
