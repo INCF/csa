@@ -25,4 +25,4 @@ from elementary import *
 from misc import *
 from geometry import *
 from csaobject import parse, from_xml
-#from plot import *
+from plot import *
