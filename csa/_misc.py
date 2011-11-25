@@ -120,7 +120,7 @@ class RectangleMask (cs.Mask):
                 if abs (dx) < self.hwidth and abs (dy) < self.hheight:
                     yield (i, j)
 
-
+ 
 class Gaussian (cs.Operator):
     def __init__ (self, sigma, cutoff):
         self.sigma = sigma

@@ -185,3 +185,4 @@ def parse (filename):
 
 def registerTag (tag, obj, mode):
     CSAObject.tag_map[CSA + tag] = (obj, mode)
+ 

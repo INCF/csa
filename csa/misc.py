@@ -23,7 +23,7 @@ def disc (r):
 
 def rectangle (width, height):
     return _misc.Rectangle (width, height)
-
+ 
 def gaussian (sigma, cutoff):
     return _misc.Gaussian (sigma, cutoff)
 
