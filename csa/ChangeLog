@@ -1,3 +1,12 @@
+2012-02-24  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* csaobject.py (CSAObject.formalFromXML): New method.
+	(CSAObject.from_xml): Handle binding operators.
+
+	* closure.py: New file.
+
+	* __init__.py: import closure.py.
+
 2011-07-29  Mikael Djurfeldt  <mikael@djurfeldt.com>
 
 	* connset.py (CSetPartition): New class.

@@ -26,8 +26,9 @@ csa_tag = 'CSA'
 csa_namespace = 'http://software.incf.org/software/csa/1.0'
 CSA = '{%s}' % csa_namespace
 
-CUSTOM = -3
-OPERATOR = -2
+CUSTOM = -4
+OPERATOR = -3
+BINDOPERATOR = -2
 SINGLETON = -1
 
 def to_xml (obj):
@@ -79,13 +80,23 @@ class CSAObject (object):
         return E ('apply', to_xml (operator), *map (to_xml, operands))
 
     @classmethod
-    def from_xml (cls, element):
+    def formalFromXML (cls, element):
+        assert element.tag == CSA + 'bvar'
+        nodes = element.getchildren ()
+        assert nodes[0].tag == CSA + 'ci'
+        return nodes[0].text
+
+    @classmethod
+    def from_xml (cls, element, env = {}):
         if element.tag == CSA + 'cn':
             return eval (element.text)
+        elif element.tag == CSA + 'ci':
+            #*fixme* Implement env as lists of dictionaries
+            return env[element.text]
         elif element.tag == CSA + 'apply':
             nodes = element.getchildren ()
             operator = nodes[0].tag
-            operands = [ cls.from_xml (e) for e in nodes[1:] ]
+            operands = [ cls.from_xml (e, env) for e in nodes[1:] ]
             if operator == CSA + 'plus':
                 return operands[0].__add__ (operands[1])
             elif operator == CSA + 'minus':
@@ -102,13 +113,22 @@ class CSAObject (object):
                     return obj * operands[1]
                 else:
                     return obj (*operands)
+        elif element.tag == CSA + 'bind':
+            nodes = element.getchildren ()
+            tag = nodes[0].tag
+            entry = CSAObject.tag_map[tag]
+            if entry[1] != BINDOPERATOR:
+                raise RuntimeError, "unknown binding operator tag %s" % tag
+            bindingOperator = entry[0]
+            bvars = [ CSAObject.formalFromXML (e) for e in nodes[1:-1] ]
+            return bindingOperator (bvars, nodes[-1])
         elif element.tag in CSAObject.tag_map:
             entry = CSAObject.tag_map[element.tag]
             obj = entry[0]
             if entry[1] == SINGLETON:
                 return obj
             elif entry[1] == CUSTOM:
-                return obj.from_xml (element)
+                return obj.from_xml (element, env)
             else:
                 return obj ()
         else:
