@@ -308,7 +308,7 @@ class IntervalSet (CSAObject):
         return E (IntervalSet.tag, *intervals)
 
     @classmethod
-    def from_xml (cls, element):
+    def from_xml (cls, element, env = {}):
         intervals = []
         for ivalElement in element.getchildren ():
             ival = ivalElement.getchildren ()
