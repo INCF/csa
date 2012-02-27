@@ -24,12 +24,11 @@ except ImportError:
 
 if HAVE_CG:
     from csaobject import from_xml
-    from elementary import partition
+    from elementary import cross, partition
     
     class CSAConnectionGenerator (ConnectionGenerator):
         def __init__ (self, cset):
             self.cset = cset
-            self.masks = False
             self.generator = False
 
         @property
@@ -40,11 +39,30 @@ if HAVE_CG:
             self.setMasks (self, [mask], 0)
 
         def setMasks (self, masks, local):
-            if len (masks) = 1:
-                
+            csaMasks = map (CSAConnectionGenerator.makeMask, masks)
+            self.generator = partition (self.cset, csaMasks, local)
+
+        @staticmethod
+        def makeMask (self, mask):
+            return cross (CSAConnectionGenerator.makeIList (mask.sources),
+                          CSAConnectionGenerator.makeIList (mask.targets))
+
+        @staticmethod
+        def makeIList (self, iset):
+            if iset.skip == 1:
+                return iset.intervals
+            else:
+                ls = []
+                for ivl in iset.intervals:
+                    for i in xrange (ivl[0], ivl[1] + 1, iset.skip):
+                        ls.append ((i, i))
+                return ls
 
         def __len__ (self):
             return self.generator.__len__ ()
+
+        def __iter__ (self):
+            return self.generator.__iter__ ()
 
 def connectionGeneratorClosureFromXML (element):
     cset = from_xml (element)
