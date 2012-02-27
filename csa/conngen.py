@@ -24,7 +24,7 @@ except ImportError:
 
 if HAVE_CG:
     from csaobject import from_xml
-    from elementary import cross, partition
+    from elementary import arity, cross, partition
     
     class CSAConnectionGenerator (ConnectionGenerator):
         def __init__ (self, cset):
@@ -33,22 +33,22 @@ if HAVE_CG:
 
         @property
         def arity (self):
-            return self.cset.arity ()
+            return arity (self.cset)
 
         def setMask (self, mask):
-            self.setMasks (self, [mask], 0)
+            self.setMasks ([mask], 0)
 
         def setMasks (self, masks, local):
             csaMasks = map (CSAConnectionGenerator.makeMask, masks)
             self.generator = partition (self.cset, csaMasks, local)
 
         @staticmethod
-        def makeMask (self, mask):
+        def makeMask (mask):
             return cross (CSAConnectionGenerator.makeIList (mask.sources),
                           CSAConnectionGenerator.makeIList (mask.targets))
 
         @staticmethod
-        def makeIList (self, iset):
+        def makeIList (iset):
             if iset.skip == 1:
                 return iset.intervals
             else:
