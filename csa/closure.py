@@ -34,8 +34,8 @@ class Closure (CSAObject):
         self.formals = formals
         self.etree = e
 
-    @classmethod
-    def formalToXML (cls, formal):
+    @staticmethod
+    def formalToXML (formal):
         return E ('bvar', E ('ci', formal))
     
     def _to_xml (self):

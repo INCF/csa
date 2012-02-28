@@ -23,6 +23,7 @@ import connset as _cs
 import valueset as _vs
 import _elementary
 import _misc
+from csaobject import registerTag
 
 # Connection-Set constructor
 #
@@ -32,6 +33,8 @@ def cset (mask, *valueSets):
         return _cs.ConnectionSet (c)
     else:
         return mask
+
+registerTag (_cs.CSet.tag, cset, 1)
 
 # Selectors
 #
