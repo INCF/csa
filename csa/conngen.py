@@ -25,6 +25,7 @@ except ImportError:
 if HAVE_CG:
     from csaobject import from_xml
     from elementary import arity, cross, partition
+    from closure import Closure
     
     class CSAConnectionGenerator (ConnectionGenerator):
         def __init__ (self, cset):
@@ -66,4 +67,7 @@ if HAVE_CG:
 
 def connectionGeneratorClosureFromXML (element):
     cset = from_xml (element)
-    return CSAConnectionGenerator (cset)
+    if isinstance (cset, Closure):
+        return lambda *args: CSAConnectionGenerator (cset (*args))
+    else:
+        return lambda: CSAConnectionGenerator (cset)
