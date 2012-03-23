@@ -58,7 +58,10 @@ class CSAObject (object):
         return 'CSA(%s)' % self.repr ()
 
     def repr (self):
-        return self.name
+        if hasattr (self, 'name'):
+            return self.name
+        else:
+            return self.__class__.__name__
 
     def _repr_as_op2 (self, parentPrecedence):
         if self.precedence <= parentPrecedence:
