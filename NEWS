@@ -1,0 +1,24 @@
+CSA NEWS --- history of user-visible changes.
+Copyright (C) 2012 Mikael Djurfeldt
+
+Please send CSA bug reports to mikael@djurfeldt.com.
+
+
+Changes in 0.1.0:
+
+* Partial support for reading and writing XML
+
+* Tutorial in doc directory
+
+* New functions and operators
+
+
+Changes in 0.0.4:
+
+
+First release: 0.0.1
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:

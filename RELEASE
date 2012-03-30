@@ -1,0 +1,29 @@
+Checklist for a release:
+
+* Install packages:
+
+dpkg-dev
+dpkg-dev-el
+lintian
+debhelper
+python-setuptools
+python-all
+python-nose
+
+* csa/version.py
+
+* (optional) debian/changelog
+
+* update NEWS
+
+* "Release x.y.z" in all ChangeLog:s
+
+* make debian-package
+
+* lintian -i python-csa_x.y.z.-n_ARCH.changes
+
+* dupload python-csa_x.y.z.-n_ARCH.changes
+
+* svn commit
+
+* svn cp http://svn.incf.org/svn/csa/trunk http://svn.incf.org/svn/csa/tags/release-x.y.z -m 'Tagging release x.y.z of CSA'
