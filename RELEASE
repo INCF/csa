@@ -9,6 +9,8 @@ debhelper
 python-setuptools
 python-all
 python-nose
+python-numpy
+python-matplotlib
 
 * csa/version.py
 
@@ -20,9 +22,9 @@ python-nose
 
 * make debian-package
 
-* lintian -i python-csa_x.y.z.-n_ARCH.changes
+* lintian -i python-csa_x.y.z-n_ARCH.changes
 
-* dupload python-csa_x.y.z.-n_ARCH.changes
+* dupload python-csa_x.y.z-n_ARCH.changes
 
 * svn commit
 
