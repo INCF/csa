@@ -192,8 +192,8 @@ class OpExprValue (BinaryCSAObject):
 
 
 class Operator (CSAObject):
-    def __init__ (self):
-        CSAObject.__init__ (self, 'ioperator')
+    def __init__ (self, name='ioperator'):
+        CSAObject.__init__ (self, name)
 
 
 def from_xml (root):
