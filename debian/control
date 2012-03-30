@@ -9,10 +9,8 @@ Build-Depends: debhelper (>= 7.0.50~)
  , python-nose
  , python-numpy
  , python-matplotlib
-Standards-Version: 3.9.0
+Standards-Version: 3.9.1
 Homepage: http://software.incf.org/software/csa
-Vcs-Svn: http://svn.incf.org/svn/csa
-Vcs-Browser: http://svn.incf.org/svn/csa
 
 Package: python-csa
 Architecture: all

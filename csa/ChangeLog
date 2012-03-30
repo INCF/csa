@@ -1,3 +1,7 @@
+2012-03-30  Mikael Djurfeldt  <mdj@squeeze>
+
+	* Release 0.1.0
+
 2012-02-24  Mikael Djurfeldt  <mikael@djurfeldt.com>
 
 	* csaobject.py (CSAObject.formalFromXML): New method.
