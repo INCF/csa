@@ -1,5 +1,5 @@
-Welcome to the CSA reference manual!
-===========================================
+The Python CSA Reference Manual
+===============================
 Contents:
 
 .. toctree::
