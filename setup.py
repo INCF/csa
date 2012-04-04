@@ -21,7 +21,7 @@ setup (
     license = "GPLv3",
     keywords = "computational neuroscience modeling connectivity",
     url = "http://software.incf.org/software/csa/",
-    classifiers = ['Development Status :: 2 - Pre-Alpha',
+    classifiers = ['Development Status :: 3 - Alpha',
                    'Environment :: Console',
                    'Intended Audience :: Science/Research',
                    'License :: OSI Approved :: GNU General Public License (GPL)',
