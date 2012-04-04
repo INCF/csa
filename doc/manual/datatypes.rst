@@ -1,7 +1,7 @@
 Datatypes in the Python CSA implementation
 ==========================================
 
-Connection-set Objects
+Connection Set Objects
 ----------------------
 
 Connection-set objects (:class:`Mask`, :class:`ConnectionSet`)
@@ -13,3 +13,10 @@ Connection-set objects (:class:`Mask`, :class:`ConnectionSet`)
 +--------------------+---------------------------------+--------+
 | ``x - y``          | set difference of *x* and *y*   |        |
 +--------------------+---------------------------------+--------+
+
+Value Set Objects
+-----------------
+
+Interval Set Objects
+--------------------
+
