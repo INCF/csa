@@ -6,7 +6,6 @@ Contents:
    :maxdepth: 2
 
    intro
-   install
    datatypes
    basicfunc
    random
