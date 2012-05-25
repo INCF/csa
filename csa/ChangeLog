@@ -1,3 +1,8 @@
+2012-05-25  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* intervalset.py (IntervalSet.goodInterval): Accept long as
+	index.
+
 2012-03-30  Mikael Djurfeldt  <mdj@squeeze>
 
 	* Release 0.1.0

@@ -31,8 +31,8 @@ class IntervalSet (CSAObject):
     # return true if tuple i represents a well-formed interval
     def goodInterval (i):
         return len (i) == 2 \
-               and isinstance (i[0], int) \
-               and isinstance (i[1], int) \
+               and isinstance (i[0], (int, long)) \
+               and isinstance (i[1], (int, long)) \
                and i[0] <= i[1]
 
     @staticmethod
