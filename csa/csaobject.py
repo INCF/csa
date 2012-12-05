@@ -206,6 +206,11 @@ def parse (filename):
     return from_xml (doc.getroot())
 
 
+def parseString (string):
+    el = etree.fromstring (string)
+    return from_xml (el)
+
+
 def registerTag (tag, obj, mode):
     CSAObject.tag_map[CSA + tag] = (obj, mode)
  

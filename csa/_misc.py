@@ -19,6 +19,7 @@
 import math
 import random
 import copy
+from scipy.spatial import KDTree
 
 import connset as cs
 import valueset as vs
@@ -123,6 +124,7 @@ class RectangleMask (cs.Mask):
  
 class Gaussian (cs.Operator):
     def __init__ (self, sigma, cutoff):
+        cs.Operator.__init__ (self, 'gaussian')
         self.sigma = sigma
         self.cutoff = cutoff
         
