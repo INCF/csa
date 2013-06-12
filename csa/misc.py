@@ -30,6 +30,9 @@ def gaussian (sigma, cutoff):
 def block (M, N = None):
     return _misc.Block (M, M if N == None else N)
 
+def repeat (M, N = None):
+    return _misc.Repeat (M, M if N == None else N)
+
 transpose = _misc.Transpose ()
 
 def shift (M, N):

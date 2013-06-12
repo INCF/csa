@@ -199,6 +199,63 @@ class BlockMask (cs.Mask):
                             yield (ii, jj)
 
 
+class Repeat (cs.Operator):
+    def __init__ (self, M, N):
+        self.M = M
+        self.N = N
+
+    def __mul__ (self, other):
+        c = cs.coerceCSet (other)
+        if isinstance (c, cs.Mask):
+            return RepeatMask (self.M, self.N, c)
+        else:
+            return cs.ConnectionSet (RepeatCSet (self.M, self.N, c))
+
+
+# Not fully implemented
+# Currently only handles cases where we iterate over an even number of
+# ocurrences of the template mask, both with regard to sources and targets
+#
+class RepeatMask (cs.Mask):
+    def __init__ (self, M, N, mask):
+        cs.Mask.__init__ (self)
+        self.M = M
+        self.N = N
+        self.m = mask
+
+    def iterator (self, low0, high0, low1, high1, state):
+        jj = low1
+        nextHigh1 = (low1 + self.N) / self.N * self.N
+        while nextHigh1 <= high1:
+            maskIter =  self.m.iterator (0,
+                                         self.M,
+                                         0,
+                                         self.N,
+                                         state)
+            try:
+                (i, j) = maskIter.next ()
+                post = j
+                while post < self.N:
+                    pre = []
+                    while j == post:
+                        pre.append (i)
+                        (i, j) = maskIter.next ()
+                    ii = low0
+                    while ii < high0:
+                        for k in pre:
+                            yield (ii + k, jj + post)
+                        ii += self.M
+                    post = j
+            except StopIteration:
+                ii = low0
+                while ii < high0:
+                    for k in pre:
+                        yield (ii + k, jj + post)
+                    ii += self.M
+            jj = nextHigh1
+            nextHigh1 += self.N
+
+
 class Transpose (cs.Operator):
     def __mul__ (self, other):
         c = cs.coerceCSet (other)

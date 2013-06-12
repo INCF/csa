@@ -1,3 +1,9 @@
+2013-06-12  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* misc.py (repeat): New operator.
+
+	* _misc.py (Repeat, RepeatMask): New masks.
+
 2012-05-25  Mikael Djurfeldt  <mikael@djurfeldt.com>
 
 	* intervalset.py (IntervalSet.goodInterval): Accept long as
