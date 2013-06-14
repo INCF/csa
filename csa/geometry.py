@@ -53,11 +53,6 @@ def random2d (N, xScale = 1.0, yScale = 1.0):
                                    + domain.min ()
     return g
 
-def euclidDistance2d (p1, p2):
-    dx = p1[0] - p2[0]
-    dy = p1[1] - p2[1]
-    return _math.sqrt (dx * dx + dy * dy)
-
 class ProjectionOperator (object):
     def __init__ (self, projection):
         self.projection = projection
@@ -66,8 +61,23 @@ class ProjectionOperator (object):
         projection = self.projection
         return lambda i: projection (g (i))
 
+def euclidDistance2d (p1, p2):
+    dx = p1[0] - p2[0]
+    dy = p1[1] - p2[1]
+    return _math.sqrt (dx * dx + dy * dy)
+
 def euclidMetric2d (g1, g2 = None):
     g2 = g1 if g2 == None else g2
     return lambda i, j: euclidDistance2d (g1 (i), g2 (j))
 
-#del random
+# These functions were contributed by Dr. Birgit Kriener
+
+def euclidToroidDistance2d (p1, p2, xScale=1.0, yScale=1.0):
+    ddx, ddy = abs (p1[0] - p2[0]), abs (p1[1] - p2[1])
+    dx = ddx if ddx < xScale/2. else  xScale - ddx
+    dy = ddy if ddy < yScale/2. else  yScale - ddy
+    return _math.sqrt (dx * dx + dy * dy)
+
+def euclidToroidMetric2d (g1, g2 = None, xScale=1.0, yScale=1.0):
+    g2 = g1 if g2 == None else g2
+    return lambda i, j: euclidToroidDistance2d (g1 (i), g2 (j), xScale, yScale)

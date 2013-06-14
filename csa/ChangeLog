@@ -1,3 +1,8 @@
+2013-06-13  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* geometry.py (euclidToroidDistance2d, euclidToroidMetric2d): New
+	functions.
+
 2013-06-12  Mikael Djurfeldt  <mikael@djurfeldt.com>
 
 	* misc.py (repeat): New operator.
