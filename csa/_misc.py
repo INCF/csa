@@ -19,7 +19,7 @@
 import math
 import random
 import copy
-from scipy.spatial import KDTree
+#from scipy.spatial import KDTree
 
 import connset as cs
 import valueset as vs
@@ -164,12 +164,21 @@ class BlockMask (cs.Mask):
         self.N = N
         self.m = mask
 
+    def startIteration (self, state):
+        #*fixme* filter out 'partitions' from state
+        nState = {}
+        for k in state:
+            if k != 'partitions':
+                nState[k] = state[k]
+        self.obj = self.m.startIteration (nState)
+        return self
+
     def iterator (self, low0, high0, low1, high1, state):
-        maskIter =  self.m.iterator (low0 / self.M,
-                                     (high0 + self.M - 1) / self.M,
-                                     low1 / self.N,
-                                     (high1 + self.N - 1) / self.N,
-                                     state)
+        maskIter =  self.obj.iterator (low0 / self.M,
+                                       (high0 + self.M - 1) / self.M,
+                                       low1 / self.N,
+                                       (high1 + self.N - 1) / self.N,
+                                       state)
         try:
             pre = []
             (i, j) = maskIter.next ()
