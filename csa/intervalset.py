@@ -199,6 +199,24 @@ class IntervalSet (CSAObject):
     def max (self):
         return self.intervals[-1][1]
 
+    def skipIntervals (self):
+        if len (self.intervals) <= 1 or self.intervals[0][0] != self.intervals[0][1]:
+            return 1, self.intervals
+        skip = self.intervals[1][0] - self.intervals[0][0]
+        res = []
+        start = last = self.intervals[0][0]
+        for i in self.intervals[1:]:
+            if i[0] != i[1]:
+                return 1, self.intervals
+            if i[0] != last + skip:
+                if i[0] % skip != 0:
+                    return 1, self.intervals
+                res.append ((start, last))
+                start = i[0]
+            last = i[0]
+        res.append ((start, last))
+        return skip, res
+
     def intersection (self, other):
         res = []
         N = 0

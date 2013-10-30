@@ -1,3 +1,7 @@
+2013-10-30  Mikael Djurfeldt  <mikael@djurfeldt.com>
+
+	* intervalset.py (IntervalSet.skipIntervals): New function.
+
 2013-06-13  Mikael Djurfeldt  <mikael@djurfeldt.com>
 
 	* geometry.py (euclidToroidDistance2d, euclidToroidMetric2d): New
