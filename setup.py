@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+
+# ugly hack to prevent matplotlib from creating a configuration file
+# outside of the EasyInstall sandbox
+import os
+os.environ['MPLCONFIGDIR'] = "."
+
 from csa.version import __version__
 
 long_description = """The CSA library provides elementary connection-sets and operators for

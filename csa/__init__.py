@@ -16,6 +16,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import ctypes
+try:
+    _libpycsa_handle_ = ctypes.CDLL ('libpycsa.so')
+except OSError:
+    None
+
 from version import __version__
 from connset import Mask
 from connset import ConnectionSet
