@@ -33,6 +33,8 @@ static PyObject* pCSAClasses = 0;
 static PyObject* pArity = 0;
 static PyObject* pCross = 0;
 static PyObject* pPartition = 0;
+static PyObject* pParse = 0;
+static PyObject* pParseString = 0;
 
 
 static void
@@ -47,6 +49,8 @@ error (std::string errstring)
 static bool
 CSAimported ()
 {
+  if (!Py_IsInitialized ())
+    Py_Initialize ();
   return PyMapping_HasKeyString (PyImport_GetModuleDict (), (char*)"csa");
 }
 
@@ -78,6 +82,10 @@ loadCSA ()
   pArity = PyObject_GetAttrString (pModule, "arity");
   pCross = PyObject_GetAttrString (pModule, "cross");
   pPartition = PyObject_GetAttrString (pModule, "partition");
+
+  pParse = PyObject_GetAttrString (pModule, "parse");
+  pParseString = PyObject_GetAttrString (pModule, "parseString");
+
   Py_DECREF (pModule);
   if (pArity == NULL)
     {
@@ -92,212 +100,256 @@ loadCSA ()
 }
 
 
-bool PyPyCSA_Check (PyObject* obj)
+static bool
+tryLoadCSA ()
 {
   if (pCSAClasses == 0)
     {
       if (!CSAimported ())
-	return false;
+	PyRun_SimpleString ("import csa\n"); //*fixme* error handling
 
       // load CSA library
       bool status = loadCSA ();
       if (!status)
 	return false;
     }
-
-  return PyObject_IsInstance (obj, pCSAClasses);
 }
 
 
-PyCSAGenerator::PyCSAGenerator (PyObject* obj)
-  : pCSAObject (obj), pPartitionedCSAObject (NULL), pIterator (NULL)
-{
-  PYGILSTATE_ENSURE (gstate);
-  Py_INCREF (pCSAObject);
-  PyObject* a = PyObject_CallFunctionObjArgs (pArity, pCSAObject, NULL);
-  arity_ = PyInt_AsLong (a);
-  Py_DECREF (a);
-  PYGILSTATE_RELEASE (gstate);
-}
+namespace PyCSA {
+
+  PyCSAGenerator::PyCSAGenerator (PyObject* obj)
+    : pCSAObject (obj), pPartitionedCSAObject (NULL), pIterator (NULL)
+  {
+    PYGILSTATE_ENSURE (gstate);
+    Py_INCREF (pCSAObject);
+    PyObject* a = PyObject_CallFunctionObjArgs (pArity, pCSAObject, NULL);
+    arity_ = PyInt_AsLong (a);
+    Py_DECREF (a);
+    PYGILSTATE_RELEASE (gstate);
+  }
 
 
-PyCSAGenerator::~PyCSAGenerator ()
-{
-  PYGILSTATE_ENSURE (gstate);
-  Py_XDECREF (pIterator);
-  Py_XDECREF (pPartitionedCSAObject);
-  Py_DECREF (pCSAObject);
-  PYGILSTATE_RELEASE (gstate);
-}
+  PyCSAGenerator::~PyCSAGenerator ()
+  {
+    PYGILSTATE_ENSURE (gstate);
+    Py_XDECREF (pIterator);
+    Py_XDECREF (pPartitionedCSAObject);
+    Py_DECREF (pCSAObject);
+    PYGILSTATE_RELEASE (gstate);
+  }
 
 
-int
-PyCSAGenerator::arity ()
-{
-  return arity_;
-}
+  int
+  PyCSAGenerator::arity ()
+  {
+    return arity_;
+  }
 
 
-PyObject*
-PyCSAGenerator::makeIntervals (IntervalSet& iset)
-{
-  PyObject* ivals = PyList_New (0);
-  if (iset.skip () == 1)
-    {
-      for (IntervalSet::iterator i = iset.begin (); i != iset.end (); ++i)
-	PyList_Append (ivals,
-		       PyTuple_Pack (2,
-				     PyInt_FromLong (i->first),
-				     PyInt_FromLong (i->last)));
-    }
-  else
-    {
-      for (IntervalSet::iterator i = iset.begin (); i != iset.end (); ++i)
-	{
-	  int last = i->last;
-	  for (int j = i->first; j < last; j += iset.skip ())
-	    PyList_Append (ivals,
-			   PyTuple_Pack (2,
-					 PyInt_FromLong (j),
-					 PyInt_FromLong (j)));
-	}
-    }
-  return ivals;
-}
+  PyObject*
+  PyCSAGenerator::makeIntervals (IntervalSet& iset)
+  {
+    PyObject* ivals = PyList_New (0);
+    if (iset.skip () == 1)
+      {
+	for (IntervalSet::iterator i = iset.begin (); i != iset.end (); ++i)
+	  PyList_Append (ivals,
+			 PyTuple_Pack (2,
+				       PyInt_FromLong (i->first),
+				       PyInt_FromLong (i->last)));
+      }
+    else
+      {
+	for (IntervalSet::iterator i = iset.begin (); i != iset.end (); ++i)
+	  {
+	    int last = i->last;
+	    for (int j = i->first; j < last; j += iset.skip ())
+	      PyList_Append (ivals,
+			     PyTuple_Pack (2,
+					   PyInt_FromLong (j),
+					   PyInt_FromLong (j)));
+	  }
+      }
+    return ivals;
+  }
 
 
-void
-PyCSAGenerator::setMask (std::vector<Mask>& masks, int local)
-{
-  PYGILSTATE_ENSURE (gstate);
-  PyObject* pMasks = PyList_New (masks.size ());
-  for (size_t i = 0; i < masks.size (); ++i)
-    {
-      PyObject* pMask
-	= PyObject_CallFunctionObjArgs (pCross,
-					makeIntervals (masks[i].sources),
-					makeIntervals (masks[i].targets),
-					NULL);
-      PyList_SetItem (pMasks, i, pMask);
-    }
+  void
+  PyCSAGenerator::setMask (std::vector<Mask>& masks, int local)
+  {
+    PYGILSTATE_ENSURE (gstate);
+    PyObject* pMasks = PyList_New (masks.size ());
+    for (size_t i = 0; i < masks.size (); ++i)
+      {
+	PyObject* pMask
+	  = PyObject_CallFunctionObjArgs (pCross,
+					  makeIntervals (masks[i].sources),
+					  makeIntervals (masks[i].targets),
+					  NULL);
+	PyList_SetItem (pMasks, i, pMask);
+      }
 
-  Py_XDECREF (pPartitionedCSAObject);
-  pPartitionedCSAObject = PyObject_CallFunctionObjArgs (pPartition,
-							pCSAObject,
-							pMasks,
-							PyInt_FromLong (local),
-							NULL);
-  if (pPartitionedCSAObject == NULL)
-    {
-      PYGILSTATE_RELEASE (gstate);
-      std::cerr << "Failed to create masked CSA object" << std::endl;
-      return;
-    }
-  Py_INCREF (pPartitionedCSAObject); //*fixme* check if necessary!
-  PYGILSTATE_RELEASE (gstate);
-}
-
-
-int
-PyCSAGenerator::size ()
-{
-  PYGILSTATE_ENSURE (gstate);
-  int size = PySequence_Size (pCSAObject);
-  PYGILSTATE_RELEASE (gstate);
-  return size;
-}
+    Py_XDECREF (pPartitionedCSAObject);
+    pPartitionedCSAObject = PyObject_CallFunctionObjArgs (pPartition,
+							  pCSAObject,
+							  pMasks,
+							  PyInt_FromLong (local),
+							  NULL);
+    if (pPartitionedCSAObject == NULL)
+      {
+	PYGILSTATE_RELEASE (gstate);
+	std::cerr << "Failed to create masked CSA object" << std::endl;
+	return;
+      }
+    Py_INCREF (pPartitionedCSAObject); //*fixme* check if necessary!
+    PYGILSTATE_RELEASE (gstate);
+  }
 
 
-void
-PyCSAGenerator::start ()
-{
-  if (pPartitionedCSAObject == NULL)
-    {
-      error ("CSA connection generator not properly initialized");
-      return;
-    }
-  PYGILSTATE_ENSURE (gstate);
-  Py_XDECREF (pIterator);
-  pIterator = PyObject_GetIter (pPartitionedCSAObject);
-  PYGILSTATE_RELEASE (gstate);
-}
+  int
+  PyCSAGenerator::size ()
+  {
+    PYGILSTATE_ENSURE (gstate);
+    int size = PySequence_Size (pCSAObject);
+    PYGILSTATE_RELEASE (gstate);
+    return size;
+  }
 
 
-bool
-PyCSAGenerator::next (int& source, int& target, double* value)
-{
-  if (pIterator == NULL)
-    {
-      error ("Must call start() before next()");
-      return false;
-    }
+  void
+  PyCSAGenerator::start ()
+  {
+    if (pPartitionedCSAObject == NULL)
+      {
+	error ("CSA connection generator not properly initialized");
+	return;
+      }
+    PYGILSTATE_ENSURE (gstate);
+    Py_XDECREF (pIterator);
+    pIterator = PyObject_GetIter (pPartitionedCSAObject);
+    PYGILSTATE_RELEASE (gstate);
+  }
 
-  PYGILSTATE_ENSURE (gstate);
-  PyObject* tuple = PyIter_Next (pIterator);
-  PyObject* err = PyErr_Occurred ();
-  if (err)
-    {
-      PYGILSTATE_RELEASE (gstate);
-      return false;
-    }
 
-  if (tuple == NULL)
-    {
-      Py_DECREF (pIterator);
-      pIterator = NULL;
-      PYGILSTATE_RELEASE (gstate);
-      return false;
-    }
+  bool
+  PyCSAGenerator::next (int& source, int& target, double* value)
+  {
+    if (pIterator == NULL)
+      {
+	error ("Must call start() before next()");
+	return false;
+      }
 
-  source = PyInt_AsLong (PyTuple_GET_ITEM (tuple, 0));
-  target = PyInt_AsLong (PyTuple_GET_ITEM (tuple, 1));
-  for (int i = 0; i < arity_; ++i)
-    {
-      PyObject* v = PyTuple_GET_ITEM (tuple, i + 2);
-      if (!PyFloat_Check (v))
-	{
-	  Py_DECREF (tuple);
-	  PYGILSTATE_RELEASE (gstate);
-	  error ("NEST cannot handle non-float CSA value sets");
+    PYGILSTATE_ENSURE (gstate);
+    PyObject* tuple = PyIter_Next (pIterator);
+    PyObject* err = PyErr_Occurred ();
+    if (err)
+      {
+	PYGILSTATE_RELEASE (gstate);
+	return false;
+      }
+
+    if (tuple == NULL)
+      {
+	Py_DECREF (pIterator);
+	pIterator = NULL;
+	PYGILSTATE_RELEASE (gstate);
+	return false;
+      }
+
+    source = PyInt_AsLong (PyTuple_GET_ITEM (tuple, 0));
+    target = PyInt_AsLong (PyTuple_GET_ITEM (tuple, 1));
+    for (int i = 0; i < arity_; ++i)
+      {
+	PyObject* v = PyTuple_GET_ITEM (tuple, i + 2);
+	if (!PyFloat_Check (v))
+	  {
+	    Py_DECREF (tuple);
+	    PYGILSTATE_RELEASE (gstate);
+	    error ("NEST cannot handle non-float CSA value sets");
+	    return false;
+	  }
+	value[i] = PyFloat_AsDouble (v);
+      }
+
+    Py_DECREF (tuple);
+    PYGILSTATE_RELEASE (gstate);
+    return true;
+  }
+
+  static bool
+  isPyCSAGenerator (PyObject* obj)
+  {
+    if (pCSAClasses == 0)
+      {
+	if (!CSAimported ())
 	  return false;
-	}
-      value[i] = PyFloat_AsDouble (v);
-    }
 
-  Py_DECREF (tuple);
-  PYGILSTATE_RELEASE (gstate);
-  return true;
-}
+	// load CSA library
+	bool status = loadCSA ();
+	if (!status)
+	  return false;
+      }
 
-bool
-CGL_isConnectionGenerator (PyObject* pObj)
-{
-  return PyPyCSA_Check (pObj);
-}
+    return PyObject_IsInstance (obj, pCSAClasses);
+  }
 
-ConnectionGenerator*
-PyPyCSA_unpackConnectionGenerator (PyObject* pObj)
-{
-  if (PyPyCSA_Check (pObj))
-    return new PyCSAGenerator (pObj);
-  else
-    return 0;
-}
 
-void
-init ()
-{
-  if (!Py_IsInitialized ())
-    Py_Initialize ();
-  registerConnectionGeneratorLibrary ("libpycsa", 0, 0, 0, 0);
-  PNS::registerConnectionGeneratorType (PyPyCSA_Check,
-					PyPyCSA_unpackConnectionGenerator);
+  static ConnectionGenerator*
+  unpackPyCSAGenerator (PyObject* pObj)
+  {
+    if (isPyCSAGenerator (pObj))
+      return new PyCSAGenerator (pObj);
+    else
+      return 0;
+  }
+
+  static ConnectionGenerator*
+  parseString (std::string xml)
+  {
+    if (!tryLoadCSA ())
+      return 0;
+    PYGILSTATE_ENSURE (gstate);
+    PyObject* pyXML = PyString_FromString (xml.c_str ());
+    PyObject* cg = PyObject_CallFunctionObjArgs (pParseString, pyXML, NULL);
+    Py_DECREF (pyXML);
+    PYGILSTATE_RELEASE (gstate);
+    return new PyCSAGenerator (cg);
+  }
+
+  static ConnectionGenerator*
+  parseFile (std::string fname)
+  {
+    if (!tryLoadCSA ())
+      return 0;
+    PYGILSTATE_ENSURE (gstate);
+    PyObject* pyfname = PyString_FromString (fname.c_str ());
+    PyObject* cg = PyObject_CallFunctionObjArgs (pParseString, pyfname, NULL);
+    Py_DECREF (pyfname);
+    PYGILSTATE_RELEASE (gstate);
+    return new PyCSAGenerator (cg);
+  }
+
+  // Publicly visible in PyCSA namespace
+  void
+  init ()
+  {
+    registerConnectionGeneratorLibrary ("libpycsa",
+					parseString,
+					parseFile,
+					0,
+					0);
+    PNS::registerConnectionGeneratorType (isPyCSAGenerator,
+					  unpackPyCSAGenerator);
+  }
+
 }
 
 namespace {
   struct initializer {
     initializer() {
-      init ();
+      PyCSA::init ();
     }
   };
   static initializer i;

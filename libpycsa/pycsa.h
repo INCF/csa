@@ -38,34 +38,31 @@ extern "C" {
 
 #include <neurosim/connection_generator.h>
 
-extern "C" {
-  bool CGL_isConnectionGenerator (PyObject* pObj);
-  ConnectionGenerator* CGL_unpackConnectionGenerator (PyObject* pObj);
+namespace PyCSA {
+
+  class PyCSAGenerator : public ConnectionGenerator {
+    PyObject* pCSAObject;
+    PyObject* pPartitionedCSAObject;
+    int arity_;
+    PyObject* pIterator;
+  private:
+    PyObject* makeIntervals (IntervalSet& iset);
+  public:
+    PyCSAGenerator (PyObject* obj);
+
+    ~PyCSAGenerator ();
+
+    int arity ();
+
+    void setMask (std::vector<Mask>& masks, int local);
+
+    int size ();
+
+    void start ();
+
+    bool next (int& source, int& target, double* value);
+  };
+
 }
-
-bool PyPyCSA_Check (PyObject* obj);
-
-class PyCSAGenerator : public ConnectionGenerator {
-  PyObject* pCSAObject;
-  PyObject* pPartitionedCSAObject;
-  int arity_;
-  PyObject* pIterator;
- private:
-  PyObject* makeIntervals (IntervalSet& iset);
- public:
-  PyCSAGenerator (PyObject* obj);
-
-  ~PyCSAGenerator ();
-
-  int arity ();
-
-  void setMask (std::vector<Mask>& masks, int local);
-
-  int size ();
-
-  void start ();
-
-  bool next (int& source, int& target, double* value);
-};
 
 #endif
