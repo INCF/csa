@@ -10,6 +10,13 @@ with a small memory footprint also for very large networks. The CSA
 can be used as a component of neuronal network simulators or other
 tools.
 
+See the following reference for more information:
+
+Mikael Djurfeldt (2012) "The Connection-set Algebra---A Novel
+Formalism for the Representation of Connectivity Structure in Neuronal
+Network Models" Neuroinformatics 10(3), 1539-2791,
+<http://dx.doi.org/10.1007/s12021-012-9146-1>
+
 * License
 
 CSA is released under the GNU General Public License
