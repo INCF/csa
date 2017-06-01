@@ -135,8 +135,8 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
                 seed = state['seed']
             else:
                 seed = 'SampleNRandomMask'
-            numpy.random.seed (hash (seed))
-            
+            # Numpy requires an unsigned 32-bit integer
+            numpy.random.seed (hash (seed) % (numpy.iinfo(numpy.uint32).max + 1))
             N = numpy.random.multinomial (self.N, numpy.array (sizes) \
                                            / float (total))
             obj.N = N[state['selected']]
@@ -242,8 +242,8 @@ class FanInRandomMask (cs.Finite, cs.Mask):
                 seed = state['seed']
             else:
                 seed = 'FanInRandomMask'
-            # Numpy.random.seed requires unsigned integer
-            numpy.random.seed (abs (hash (seed)))
+            # Numpy.random.seed requires an unsigned 32 bit integer
+            numpy.random.seed (hash (seed) % (numpy.iinfo(numpy.uint32).max + 1))
 
             selected = state['selected']
             obj.mask = partitions[selected]
