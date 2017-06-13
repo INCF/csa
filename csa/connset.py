@@ -18,10 +18,10 @@
 
 import copy
 
-import intervalset
-import valueset
+from . import intervalset
+from . import valueset
 
-from csaobject import *
+from .csaobject import *
 
 # This is the fundamental connection-set class
 # which is also the base class for masks
@@ -40,7 +40,7 @@ class CSet (CSAObject):
             if not name:
                 name = self.name
             vreprs = []
-            for k in xrange (self.arity):
+            for k in range (self.arity):
                 v = self.value (k)
                 if isinstance (v, CSAObject):
                     vreprs += ", %s" % v.repr ()
@@ -67,10 +67,10 @@ class CSet (CSAObject):
     def makeValueSet (self, k):
         if isFinite (self.mask ()):
             return self.makeFiniteValueSet (k, self.mask ().bounds ())
-        raise RuntimeError, "don't know how to return value set for this connection-set"
+        raise RuntimeError("don't know how to return value set for this connection-set")
 
     def makeFiniteValueSet (self, k, bounds):
-        raise RuntimeError, "don't know how to return value set for this connection-set"
+        raise RuntimeError("don't know how to return value set for this connection-set")
 
     def __len__ (self):
         return len (self.mask ())
@@ -83,7 +83,7 @@ class CSet (CSAObject):
             (low0, high0, low1, high1) = self.bounds ()
             return obj.iterator (low0, high0, low1, high1, state)
         else:
-            raise RuntimeError, 'attempt to retrieve iterator over infinite connection-set'
+            raise RuntimeError('attempt to retrieve iterator over infinite connection-set')
 
     def bounds (self):
         return self.mask ().bounds ()
@@ -188,7 +188,7 @@ def target (x):
     return x[1]
 
 def isNumber (x):
-    return isinstance (x, (int, long, float, complex))
+    return isinstance (x, (int, float, complex))
 
 def coerceCSet (obj):
     if isinstance (obj, list):
@@ -213,7 +213,7 @@ def isFinite (x):
 def isEmpty (x):
     iterator = iter (x.mask ())
     try:
-        iterator.next ()
+        next(iterator)
         return False
     except StopIteration:
         return True
@@ -235,7 +235,7 @@ class Mask (CSet):
         return N
 
     def __iter__ (self):
-        raise RuntimeError, 'attempt to retrieve iterator over infinite mask'
+        raise RuntimeError('attempt to retrieve iterator over infinite mask')
 
     def __add__ (self, other):
         return self.multisetSum (other)
@@ -338,22 +338,22 @@ class NoParIterator ():
         self.subIterator = False
 
     def iterator (self, low0, high0, low1, high1, state):
-        print low0, high0, low1, high1
+        print(low0, high0, low1, high1)
         if not self.subIterator:
             self.subIterator = self.noParIterator (state)
-            self.lastC = self.subIterator.next ()
+            self.lastC = next(self.subIterator)
         c = self.lastC
         while c[1] < low1:
-            c = self.subIterator.next ()
+            c = next(self.subIterator)
         while c[1] < high1:
             j = c[1]
             while c[1] == j and c[0] < low0:
-                c = self.subIterator.next ()
+                c = next(self.subIterator)
             while c[1] == j and c[0] < high0:
                 yield c
-                c = self.subIterator.next ()
+                c = next(self.subIterator)
             while c[1] == j:
-                c = self.subIterator.next ()
+                c = next(self.subIterator)
         self.lastC = c
 
 
@@ -376,17 +376,17 @@ class MaskIntersection (BinaryMask):
     def iterator (self, low0, high0, low1, high1, state):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
         iter2 = self.op2.iterator (low0, high0, low1, high1, state)
-        (i1, j1) = iter1.next ()
-        (i2, j2) = iter2.next ()
+        (i1, j1) = next(iter1)
+        (i2, j2) = next(iter2)
         while True:
             if (j1, i1) < (j2, i2):
-                (i1, j1) = iter1.next ()
+                (i1, j1) = next(iter1)
             elif (j2, i2) < (j1, i1):
-                (i2, j2) = iter2.next ()
+                (i2, j2) = next(iter2)
             else:
                 yield (i1, j1)
-                (i1, j1) = iter1.next ()
-                (i2, j2) = iter2.next ()
+                (i1, j1) = next(iter1)
+                (i2, j2) = next(iter2)
 
 
 class FiniteMaskIntersection (Finite, MaskIntersection):
@@ -406,37 +406,37 @@ class MaskMultisetSum (BinaryMask):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
         iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         try:
-            (i1, j1) = iter1.next ()
+            (i1, j1) = next(iter1)
         except StopIteration:
-            (i2, j2) = iter2.next ()
+            (i2, j2) = next(iter2)
             while True:
                 yield (i2, j2)
-                (i2, j2) = iter2.next ()
+                (i2, j2) = next(iter2)
         try:
-            (i2, j2) = iter2.next ()
+            (i2, j2) = next(iter2)
         except StopIteration:
             while True:
                 yield (i1, j1)
-                (i1, j1) = iter1.next ()
+                (i1, j1) = next(iter1)
         while True:
             i1s = i1
             j1s = j1
             while (j1, i1) <= (j2, i2):
                 yield (i1, j1)
                 try:
-                    (i1, j1) = iter1.next ()
+                    (i1, j1) = next(iter1)
                 except StopIteration:
                     while True:
                         yield (i2, j2)
-                        (i2, j2) = iter2.next ()
+                        (i2, j2) = next(iter2)
             while (j2, i2) <= (j1s, i1s):
                 yield (i2, j2)
                 try:
-                    (i2, j2) = iter2.next ()
+                    (i2, j2) = next(iter2)
                 except StopIteration:
                     while True:
                         yield (i1, j1)
-                        (i1, j1) = iter1.next ()
+                        (i1, j1) = next(iter1)
 
 
 class FiniteMaskMultisetSum (Finite, MaskMultisetSum):
@@ -455,21 +455,21 @@ class MaskDifference (BinaryMask):
     def iterator (self, low0, high0, low1, high1, state):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
         iter2 = self.op2.iterator (low0, high0, low1, high1, state)
-        (i1, j1) = iter1.next ()
-        (i2, j2) = iter2.next ()
+        (i1, j1) = next(iter1)
+        (i2, j2) = next(iter2)
         while True:
             if (j1, i1) < (j2, i2):
                 yield (i1, j1)
-                (i1, j1) = iter1.next ()
+                (i1, j1) = next(iter1)
                 continue
             elif (i1, j1) == (i2, j2):
-                (i1, j1) = iter1.next ()
+                (i1, j1) = next(iter1)
             try:
-                (i2, j2) = iter2.next ()
+                (i2, j2) = next(iter2)
             except StopIteration:
                 while True:
                     yield (i1, j1)
-                    (i1, j1) = iter1.next ()
+                    (i1, j1) = next(iter1)
 
 
 def cmpPostOrder (c0, op1):
@@ -498,13 +498,13 @@ class ExplicitMask (FiniteMask):
 
     def boundedIterator (self, low0, high0, low1, high1, state):
         iterator = iter (self.connections)
-        (i, j) = iterator.next ()
+        (i, j) = next(iterator)
         while j < low1:
-            (i, j) = iterator.next ()
+            (i, j) = next(iterator)
         while j < high1:
             if low0 <= i and i < high0:
                 yield (i, j)
-            (i, j) = iterator.next ()
+            (i, j) = next(iterator)
 
 
 class IntervalSetMask (Mask):
@@ -533,32 +533,32 @@ class IntervalSetMask (Mask):
 
     def iterator (self, low0, high0, low1, high1, state):
         iterator1 = self.set1.intervalIterator ()
-        i1 = iterator1.next ()
+        i1 = next(iterator1)
         while i1[1] < low1:
-            i1 = iterator1.next ()
+            i1 = next(iterator1)
         while i1[0] < high1:
-            for j in xrange (max (i1[0], low1), min (i1[1] + 1, high1)):
+            for j in range (max (i1[0], low1), min (i1[1] + 1, high1)):
                 iterator0 = self.set0.intervalIterator ()
                 try:
-                    i0 = iterator0.next ()
+                    i0 = next(iterator0)
                     while i0[1] < low0:
-                        i0 = iterator0.next ()
+                        i0 = next(iterator0)
                     if i0[1] < high0:
-                        for i in xrange (max (i0[0], low0), i0[1] + 1):
+                        for i in range (max (i0[0], low0), i0[1] + 1):
                             yield (i, j)
-                        i0 = iterator0.next ()
+                        i0 = next(iterator0)
                         while i0[1] < high0:
-                            for i in xrange (i0[0], i0[1] + 1):
+                            for i in range (i0[0], i0[1] + 1):
                                 yield (i, j)
-                            i0 = iterator0.next ()
-                        for i in xrange (i0[0], min (i0[1] + 1, high0)):
+                            i0 = next(iterator0)
+                        for i in range (i0[0], min (i0[1] + 1, high0)):
                             yield (i, j)
                     else:
-                        for i in xrange (max (i0[0], low0), min (i0[1] + 1, high0)):
+                        for i in range (max (i0[0], low0), min (i0[1] + 1, high0)):
                             yield (i, j)
                 except StopIteration:
                     pass
-            i1 = iterator1.next ()
+            i1 = next(iterator1)
 
     def intersection (self, other):
         if isinstance (other, IntervalSetMask):
@@ -576,8 +576,7 @@ class IntervalSetMask (Mask):
                 set1 = self.set1.union (other.set1)
                 return intervalSetMask (set0, set1)
             else:
-                raise RuntimeError, \
-                      'sums of overlapping IntervalSetMask:s not yet supported'
+                raise RuntimeError('sums of overlapping IntervalSetMask:s not yet supported')
         else:
             return FiniteMask.multisetSum (self, other)
 
@@ -709,29 +708,29 @@ class ISetBoundedMask (FiniteMask):
 
     def boundedIterator (self, low0, high0, low1, high1, state):
         iterator1 = self.set1.intervalIterator ()
-        i1 = iterator1.next ()
+        i1 = next(iterator1)
         while i1[1] < low1:
-            i1 = iterator1.next ()
+            i1 = next(iterator1)
         while i1[0] < high1:
             i1 = (max (i1[0], low1), min (i1[1], high1 - 1))
             iterator0 = self.set0.intervalIterator ()
             try:
-                i0 = iterator0.next ()
+                i0 = next(iterator0)
                 while i0[1] < low0:
-                    i0 = iterator0.next ()
+                    i0 = next(iterator0)
                 if i0[1] < high0:
                     for e in self.subMask.iterator (max (i0[0], low0),
                                                     i0[1] + 1,
                                                     i1[0], i1[1] + 1,
                                                     state):
                         yield e
-                    i0 = iterator0.next ()
+                    i0 = next(iterator0)
                     while i0[1] < high0:
                         for e in self.subMask.iterator (i0[0], i0[1] + 1,
                                                         i1[0], i1[1] + 1,
                                                         state):
                             yield e
-                        i0 = iterator0.next ()
+                        i0 = next(iterator0)
                         for e in self.subMask.iterator (i0[0],
                                                         min (i0[1] + 1, high0),
                                                         i1[0], i1[1] + 1,
@@ -745,7 +744,7 @@ class ISetBoundedMask (FiniteMask):
                             yield e
             except StopIteration:
                 pass
-            i1 = iterator1.next ()
+            i1 = next(iterator1)
 
     def repr (self):
         return '%s*%s' % (IntervalSetMask._sets_to_repr (self.set0, self.set1),
@@ -765,7 +764,7 @@ class ExplicitCSet (CSet):
         if isinstance (mask, list):
             mask = ExplicitMask (mask)
         self.originalValueSets = valueSets
-        CSet.__init__ (self, mask, *map (coerceValueSet, valueSets))
+        CSet.__init__ (self, mask, *list(map (coerceValueSet, valueSets)))
 
     def value (self, k):
         return self.originalValueSets[k]
@@ -831,17 +830,17 @@ class CSetIntersection (BinaryCSet):
     def iterator (self, low0, high0, low1, high1, state):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
         iter2 = self.op2.iterator (low0, high0, low1, high1, state)
-        (i1, j1, v1) = iter1.next ()
-        (i2, j2) = iter2.next ()
+        (i1, j1, v1) = next(iter1)
+        (i2, j2) = next(iter2)
         while True:
             if (j1, i1) < (j2, i2):
-                (i1, j1, v1) = iter1.next ()
+                (i1, j1, v1) = next(iter1)
             elif (j2, i2) < (j1, i1):
-                (i2, j2) = iter2.next ()
+                (i2, j2) = next(iter2)
             else:
                 yield (i1, j1, v1)
-                (i1, j1, v1) = iter1.next ()
-                (i2, j2) = iter2.next ()
+                (i1, j1, v1) = next(iter1)
+                (i2, j2) = next(iter2)
 
 
 class CSetMultisetSum (BinaryCSets):
@@ -853,37 +852,37 @@ class CSetMultisetSum (BinaryCSets):
         iter1 = self.op1.iterator (low0, high0, low1, high1, state)
         iter2 = self.op2.iterator (low0, high0, low1, high1, state)
         try:
-            (i1, j1, v1) = iter1.next ()
+            (i1, j1, v1) = next(iter1)
         except StopIteration:
-            (i2, j2, v2) = iter2.next ()
+            (i2, j2, v2) = next(iter2)
             while True:
                 yield (i2, j2, v2)
-                (i2, j2, v2) = iter2.next ()
+                (i2, j2, v2) = next(iter2)
         try:
-            (i2, j2, v2) = iter2.next ()
+            (i2, j2, v2) = next(iter2)
         except StopIteration:
             while True:
                 yield (i1, j1, v1)
-                (i1, j1, v1) = iter1.next ()
+                (i1, j1, v1) = next(iter1)
         while True:
             i1s = i1
             j1s = j1
             while (j1, i1) <= (j2, i2):
                 yield (i1, j1, v1)
                 try:
-                    (i1, j1, v1) = iter1.next ()
+                    (i1, j1, v1) = next(iter1)
                 except StopIteration:
                     while True:
                         yield (i2, j2, v2)
-                        (i2, j2, v2) = iter2.next ()
+                        (i2, j2, v2) = next(iter2)
             while (j2, i2) <= (j1s, i1s):
                 yield (i2, j2, v2)
                 try:
-                    (i2, j2, v2) = iter2.next ()
+                    (i2, j2, v2) = next(iter2)
                 except StopIteration:
                     while True:
                         yield (i1, j1, v1)
-                        (i1, j1, v1) = iter1.next ()
+                        (i1, j1, v1) = next(iter1)
 
     def intersection (self, other):
         assert isinstance (other, Mask), 'expected Mask operand'
@@ -967,7 +966,7 @@ class State (dict):
     def transpose (self):
         if 'partitions' in self:
             s = State (self)
-            s['partitions'] = map (transpose, s['partitions'])
+            s['partitions'] = list(map (transpose, s['partitions']))
             return s
         else:
             return self
@@ -1000,7 +999,7 @@ class MaskPartition (Finite, Mask):
         return self.subMask.startIteration (state)
 
     def iterator (self, low0, high0, low1, high1, state):
-        raise RuntimeError, 'iterator called on wrong object'
+        raise RuntimeError('iterator called on wrong object')
 
 
 class CSetPartition (CSet):
@@ -1028,5 +1027,5 @@ class CSetPartition (CSet):
         return self.subCSet.startIteration (state)
 
     def iterator (self, low0, high0, low1, high1, state):
-        raise RuntimeError, 'iterator called on wrong object'
+        raise RuntimeError('iterator called on wrong object')
     

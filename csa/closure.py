@@ -16,7 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from csaobject import *
+from .csaobject import *
 
 import inspect
 
@@ -39,13 +39,14 @@ class Closure (CSAObject):
         return E ('bvar', E ('ci', formal))
     
     def _to_xml (self):
-        formals = map (Closure.formalToXML, self.formals)
+        formals = list(map (Closure.formalToXML, self.formals))
         return E ('bind', E ('closure'), *formals + [ self.etree ])
 
     def __call__ (self, *args):
         assert len (args) == len (self.formals), "arguments %s don't match formals %s" % (args, self.formals)
         bindings = {}
-        for (formal, arg) in map (None, self.formals, args):
+        # for (formal, arg) in map (None, self.formals, args):
+        for (formal, arg) in map (self.formals, args):
             bindings[formal] = arg
         return CSAObject.from_xml (self.etree, bindings)
 

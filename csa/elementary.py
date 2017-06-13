@@ -16,14 +16,15 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import print_function
 import sys as _sys
 
-import intervalset as _iset
-import connset as _cs
-import valueset as _vs
-import _elementary
-import _misc
-from csaobject import registerTag
+from . import intervalset as _iset
+from . import connset as _cs
+from . import valueset as _vs
+from . import _elementary
+from . import _misc
+from .csaobject import registerTag
 
 # Connection-Set constructor
 #
@@ -94,9 +95,8 @@ def partition (c, masks, selected, seed = None):
 #
 def tabulate (c):
     for x in c:
-        print x[0],
+        print(x[0], end=' ')
         for e in x[1:]:
-            print '\t', e,
-        print
-
+            print('\t{}'.format(e))
+        
 #del _elementary, cs, sys                # not for export

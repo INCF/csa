@@ -16,7 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import with_statement
+# from __future__ import print_function
 
 import sys
 import numpy
@@ -39,7 +39,7 @@ class TestCSA(unittest.TestCase):
 
     def sampleN (self, func, dims, N):
         data = numpy.zeros ((N,) + dims)
-        for k in xrange (N):
+        for k in range (N):
             data[k] = func ()
         return numpy.mean (data, 0)
 
@@ -61,20 +61,20 @@ class TestElementary (TestCSA):
 
     def test_xrange (self):
         # Test xrange
-        self.assertEqual30x30 (cross (xrange (10), xrange (10, 20, 3)),
-                               [(i, j) for j in xrange (10, 20, 3) for i in xrange (10)],
+        self.assertEqual30x30 (cross (range (10), range (10, 20, 3)),
+                               [(i, j) for j in range (10, 20, 3) for i in range (10)],
                                'xrange specified interval set mask')
 
     def test_full (self):
         # Test full cs
         self.assertEqualCS (cross ((0, 7), (8, 15)) * full, 
-                            [(i, j) for j in xrange (8, 16) for i in xrange (0, 8)],
+                            [(i, j) for j in range (8, 16) for i in range (0, 8)],
                             'finite piece of full connection-set bogus')
 
     def test_oneToOne (self):
         # Test oneToOne cs
         self.assertEqualCS (cross ((0, 7), (1, 8)) * oneToOne, 
-                            [(i, i) for i in xrange (1, 8)],
+                            [(i, i) for i in range (1, 8)],
                             'finite piece of oneToOne connection-set bogus')
 
     def test_tabulate (self):
@@ -174,7 +174,7 @@ class TestOperators (TestCSA):
     def test_difference (self):
         # Test difference
         self.assertEqual4x4 (full - oneToOne,
-                            [(i, j) for j in xrange (0,4) for i in xrange (0,4) if i != j],
+                            [(i, j) for j in range (0,4) for i in range (0,4) if i != j],
                             'difference operator')
 
 
