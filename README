@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/espenhgn/csa.svg?branch=master)](https://travis-ci.org/espenhgn/csa)
+
 This is a demonstration implementation in Python of the Connection-Set
 Algebra (Djurfeldt, Mikael (2012), Neuroinformatics)
 
