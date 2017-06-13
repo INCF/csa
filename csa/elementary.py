@@ -95,8 +95,8 @@ def partition (c, masks, selected, seed = None):
 #
 def tabulate (c):
     for x in c:
-        print(x[0], end=' ')
+        print(u'{}'.format(x[0]), end=u' ')
         for e in x[1:]:
-            print('\t{}'.format(e))
+            print(u'\t{}'.format(e))
         
 #del _elementary, cs, sys                # not for export

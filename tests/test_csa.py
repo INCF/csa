@@ -24,7 +24,21 @@ import numpy
 from csa import *
 
 import unittest
-from test import test_support
+
+import sys
+if sys.version < '3.4':
+    from contextlib import contextmanager
+    @contextmanager
+    def redirect_stdout(stream):
+        old_stdout = sys.stdout
+        sys.stdout = stream
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+else:
+    from contextlib import redirect_stdout
+from io import StringIO
 
 
 class TestCSA(unittest.TestCase):
@@ -81,12 +95,15 @@ class TestElementary (TestCSA):
         # Test tabulate
         if sys.version < '2.6':         #*fixme*
             return
-        with test_support.captured_stdout () as s:
+        # with test_support.captured_stdout () as s:
+        s = StringIO()
+        with redirect_stdout(s):
             tabulate (cross ((0, 3), (0, 3)) * oneToOne)
         self.assertEqual (s.getvalue (),
                           '0 \t0\n1 \t1\n2 \t2\n3 \t3\n',
                           'tabulate malfunctioning')
-
+        
+                
     def test_gaussnet (self):
         e = ival (0, 19)
         i = ival (20, 29)
@@ -179,9 +196,10 @@ class TestOperators (TestCSA):
 
 
 def main():
-    test_support.run_unittest(TestElementary,
-                              TestOperators
-                             )
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestElementary,
+                                                        TestOperators)
+    unittest.TextTestRunner(verbosity=verbosity).run(suite)
+
 
 if __name__ == '__main__':
     main()
