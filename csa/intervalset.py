@@ -36,7 +36,7 @@ class IntervalSet (CSAObject):
                and i[0] <= i[1]
 
     @staticmethod
-    def xrangeToIntervals (x):
+    def rangeToIntervals (x):
         if not x:
             return []
         elif len (x) == 1:
@@ -58,8 +58,8 @@ class IntervalSet (CSAObject):
                 res.append (x)
             elif isinstance (x, int):
                 res.append ((x, x))
-            elif isinstance (x, xrange):
-                res += IntervalSet.xrangeToIntervals (x)
+            elif isinstance (x, range):
+                res += IntervalSet.rangeToIntervals (x)
             else:
                 raise TypeError("can't interpret element as interval")
         s = res

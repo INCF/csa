@@ -9,8 +9,8 @@ python -c "import matplotlib; print('matplotlib %s' % matplotlib.__version__)"
 # build csa inplace
 python setup.py build_ext -i
 
-# run tests, but if mystery segmentation fault occurr, rerun tests to attempt a
-# clean exit
+# run tests, but if mystery segmentation fault occurr, rerun tests as an
+# attempt at a clean exit
 while true; do
     nosetests --with-coverage --cover-package=csa
     if [ $? -eq 0 ]

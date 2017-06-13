@@ -8,7 +8,7 @@ addons:
    apt:
       packages:
 install:
-  - pip install matplotlib -q
+  - pip install coveralls matplotlib -q
   - source continuous_integration/install.sh
 script:
   - bash continuous_integration/test_script.sh
