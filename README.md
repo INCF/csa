@@ -6,12 +6,8 @@ Algebra (Djurfeldt, Mikael (2012), Neuroinformatics)
 
 Code status
 ===========
-.. image:: https://travis-ci.org/INCF/csa.svg?branch=master
-    :target: https://travis-ci.org/INCF/csa
-    
-.. image:: https://coveralls.io/repos/github/INCF/csa/badge.svg?branch=master
-    :target: https://coveralls.io/github/INCF/csa?branch=master
-
+[![Build Status](https://travis-ci.org/INCF/csa.svg?branch=master)](https://travis-ci.org/INCF/csa)
+[![Coverage Status](https://coveralls.io/repos/github/INCF/csa/badge.svg?branch=master)](https://coveralls.io/github/INCF/csa?branch=master)
 
 Purpose
 =======
