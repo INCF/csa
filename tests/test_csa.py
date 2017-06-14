@@ -95,7 +95,6 @@ class TestElementary (TestCSA):
         # Test tabulate
         if sys.version < '2.6':         #*fixme*
             return
-        # with test_support.captured_stdout () as s:
         s = StringIO()
         with redirect_stdout(s):
             tabulate (cross ((0, 3), (0, 3)) * oneToOne)
