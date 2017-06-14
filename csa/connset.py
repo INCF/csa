@@ -479,7 +479,7 @@ class ExplicitMask (FiniteMask):
     def __init__ (self, connections):
         FiniteMask.__init__ (self)
         self.connections = list (connections)
-        self.connections.sort (cmpPostOrder)
+        self.connections.sort (reverse=True)
         if connections:
             self.low0 = min ((i for (i, j) in self.connections))
             self.high0 = max ((i for (i, j) in self.connections)) + 1
@@ -916,8 +916,7 @@ class TransposedMask (Finite, Mask):
         for c in self.subMask.iterator (low1, high1, low0, high0, \
                                         self.transposedState):
             ls.append ((c[1], c[0]))
-        ls.sort (cmpPostOrder)
-        return iter (ls)
+        return iter (sorted(ls))
 
 
 class ShiftedMask (Mask):
