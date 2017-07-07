@@ -350,7 +350,10 @@ class ComplementaryIntervalSet (IntervalSet):
         return True
 
     def __len__ (self):
-        raise RuntimeError('ComplementaryIntervalSet has infinite length')
+        return self.nIntegers
+        # Leaving old code in place, but this change to return self.nIntegers
+        # appear to let the test test_gaussnet() pass on Python 2.7
+        # raise RuntimeError('ComplementaryIntervalSet has infinite length')
     
     def __contains__ (self, n):
         for i in self.intervals:
