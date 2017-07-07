@@ -73,8 +73,8 @@ class TestElementary (TestCSA):
                                [(22,7),(8,23)],
                                'list cs')
 
-    def test_xrange (self):
-        # Test xrange
+    def test_range (self):
+        # Test range
         self.assertEqual30x30 (cross (range (10), range (10, 20, 3)),
                                [(i, j) for j in range (10, 20, 3) for i in range (10)],
                                'xrange specified interval set mask')

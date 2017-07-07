@@ -105,13 +105,13 @@ connections, with connections represented as tuples:
 or using the Cartesian product of intervals:
 ::
 
-    show (cross (xrange (10), xrange (20)))
+    show (cross (range (10), range (20)))
 
 We can form a finite version of the infinite oneToOne by taking the
 intersection "*" with a finite connection set:
 ::
 
-      c = cross (xrange (10), xrange (10)) * oneToOne
+      c = cross (range (10), range (10)) * oneToOne
       show (c)
 
 Finite connection sets can be tabulated:
@@ -122,7 +122,7 @@ Finite connection sets can be tabulated:
 In Python, finite connection sets provide an iterator interface:
 ::
 
-    for x in cross (xrange (10), xrange (10)) * oneToOne:
+    for x in cross (range (10), range (10)) * oneToOne:
         print x
 
 Random connectivity and the block operator
