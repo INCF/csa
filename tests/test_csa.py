@@ -16,8 +16,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# from __future__ import print_function
-
 import sys
 import numpy
 
@@ -153,9 +151,14 @@ class TestElementary (TestCSA):
 
     def test_partitionRandomN (self):
         self.K = 5
-        res = self.sampleN (self.partitionRandomN, (12 * self.K, self.K), 1000)
-        for x in res.flatten ():
-            self.assertAlmostEqual (x, 1.0, 0, 'maybe wrong statistics %g != 1.' % x)
+        for _ in range(1000):
+            res = self.partitionRandomN()
+            self.assertEqual(res.min(), 0.)
+            self.assertEqual(res.max(), self.K*2.)
+            self.assertEqual(res.shape, (self.K*12, self.K))
+            self.assertTrue((res.sum() <= self.K**2*12))
+            self.assertFalse(numpy.any((res != 0.) & (res != self.K*2.)))
+    
     def intersectionRandomN (self):
         K = self.K
         N = 3 * K
