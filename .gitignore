@@ -1,4 +1,4 @@
-Makefile.in
+*.pyc
 aclocal.m4
 autom4te.cache
 compile
@@ -6,9 +6,11 @@ config.guess
 config.h.in
 config.sub
 configure
-*.pyc
 depcomp
+dist
 fontList.cache
 install-sh
 ltmain.sh
+Makefile.in
+MANIFEST
 missing
