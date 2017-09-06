@@ -1,7 +1,7 @@
 SUBDIRS = @LIBPYCSA_SUBDIR@
 
 PACKAGE_NAME = python-csa
-PACKAGE_VERSION = $(shell python -c 'from csa.version import __version__; print __version__')
+PACKAGE_VERSION = $(shell PYTHONPATH=$(srcdir) python -c 'from csa.version import __version__; print __version__')
 
 debdir = dist/csa-$(PACKAGE_VERSION)
 
@@ -21,6 +21,7 @@ debian-package: debian-source
 	( cd $(debdir) && dpkg-buildpackage '-mMikael Djurfeldt <mdj@debian.org>' -rfakeroot && cd ../.. && rm -rf $(debdir) )
 
 install-exec-hook:
+	cd $(srcdir) &&\
 	$(PYTHON) setup.py build --build-base=$(abs_builddir)/build install --prefix=$(DESTDIR)$(prefix) --install-lib=$(DESTDIR)$(pyexecdir) --install-scripts=$(DESTDIR)$(bindir) --install-data=$(DESTDIR)$(pkgdatadir)
 
 clean-local:
