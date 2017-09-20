@@ -498,6 +498,11 @@ class MaskDifference (BinaryMask):
                     (i1, j1) = next(iter1)
 
 
+def cmpPostOrder(c0, op1):
+    return ((c0[1], c0[0]) > (op1[1], op1[0])) - \
+        ((c0[1], c0[0]) < (op1[1], op1[0]))
+
+
 class ExplicitMask (FiniteMask):
 
     def __init__(self, connections):
