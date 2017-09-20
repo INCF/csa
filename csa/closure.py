@@ -39,7 +39,7 @@ class Closure (CSAObject):
         return E ('bvar', E ('ci', formal))
     
     def _to_xml (self):
-        formals = list(map (Closure.formalToXML, self.formals))
+        formals = list (map (Closure.formalToXML, self.formals))
         return E ('bind', E ('closure'), *formals + [ self.etree ])
 
     def __call__ (self, *args):

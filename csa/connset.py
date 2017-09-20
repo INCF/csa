@@ -763,7 +763,7 @@ class ExplicitCSet (CSet):
         if isinstance (mask, list):
             mask = ExplicitMask (mask)
         self.originalValueSets = valueSets
-        CSet.__init__ (self, mask, *list(map (coerceValueSet, valueSets)))
+        CSet.__init__ (self, mask, *list (map (coerceValueSet, valueSets)))
 
     def value (self, k):
         return self.originalValueSets[k]
@@ -964,7 +964,7 @@ class State (dict):
     def transpose (self):
         if 'partitions' in self:
             s = State (self)
-            s['partitions'] = list(map (transpose, s['partitions']))
+            s['partitions'] = list (map (transpose, s['partitions']))
             return s
         else:
             return self

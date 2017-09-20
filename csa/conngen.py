@@ -40,7 +40,7 @@ if HAVE_CG:
             self.setMasks ([mask], 0)
 
         def setMasks (self, masks, local):
-            csaMasks = list(map (CSAConnectionGenerator.makeMask, masks))
+            csaMasks = list (map (CSAConnectionGenerator.makeMask, masks))
             self.generator = partition (self.cset, csaMasks, local)
 
         @staticmethod

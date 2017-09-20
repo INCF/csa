@@ -125,8 +125,8 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
         obj.isPartitioned = False
         if 'partitions' in state:
             obj.isPartitioned = True
-            partitions = list(map (self.mask.intersection, state['partitions']))
-            sizes = list(map (len, partitions))
+            partitions = list (map (self.mask.intersection, state['partitions']))
+            sizes = list (map (len, partitions))
             total = sum (sizes)
             
             # The following yields the same result on all processes.
@@ -234,7 +234,7 @@ class FanInRandomMask (cs.Finite, cs.Mask):
         obj.isPartitioned = False
         if 'partitions' in state:
             obj.isPartitioned = True
-            partitions = list(map (self.mask.intersection, state['partitions']))
+            partitions = list (map (self.mask.intersection, state['partitions']))
             
             # The following yields the same result on all processes.
             # We should add a seed function to the CSA.

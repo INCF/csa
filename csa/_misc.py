@@ -303,7 +303,7 @@ class FixedMask (cs.FiniteMask):
         for c in mask:
             ls.append (c)
         self.connections = ls
-        targets = list(map (cs.target, ls))
+        targets = list (map (cs.target, ls))
         self.low0 = min (ls)[0]
         self.high0 = max (ls)[0] + 1
         self.low1 = min (targets)

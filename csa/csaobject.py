@@ -80,7 +80,7 @@ class CSAObject (object):
 
     @classmethod
     def apply (cls, operator, *operands):
-        return E ('apply', to_xml (operator), *list(map (to_xml, operands)))
+        return E ('apply', to_xml (operator), *list (map (to_xml, operands)))
 
     @classmethod
     def formalFromXML (cls, element):
