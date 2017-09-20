@@ -181,13 +181,13 @@ class BlockMask (cs.Mask):
                                        state)
         try:
             pre = []
-            (i, j) = next(maskIter)
+            (i, j) = next (maskIter)
             while True:
                 # collect connections in one connection matrix column
                 post = j
                 while j == post:
                     pre.append (i)
-                    (i, j) = next(maskIter)
+                    (i, j) = next (maskIter)
 
                 # generate blocks for the column
                 for jj in range (max (self.N * post, low1),
@@ -242,13 +242,13 @@ class RepeatMask (cs.Mask):
                                          self.N,
                                          state)
             try:
-                (i, j) = next(maskIter)
+                (i, j) = next (maskIter)
                 post = j
                 while post < self.N:
                     pre = []
                     while j == post:
                         pre.append (i)
-                        (i, j) = next(maskIter)
+                        (i, j) = next (maskIter)
                     ii = low0
                     while ii < high0:
                         for k in pre:
