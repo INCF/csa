@@ -45,7 +45,6 @@ class Closure (CSAObject):
     def __call__ (self, *args):
         assert len (args) == len (self.formals), "arguments %s don't match formals %s" % (args, self.formals)
         bindings = {}
-        # for (formal, arg) in map (None, self.formals, args):
         for (formal, arg) in map (self.formals, args):
             bindings[formal] = arg
         return CSAObject.from_xml (self.etree, bindings)

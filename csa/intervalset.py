@@ -61,7 +61,7 @@ class IntervalSet (CSAObject):
             elif isinstance (x, range):
                 res += IntervalSet.rangeToIntervals (x)
             else:
-                raise TypeError("can't interpret element as interval")
+                raise TypeError ("can't interpret element as interval")
         s = res
 
         s.sort ()
@@ -360,7 +360,7 @@ class ComplementaryIntervalSet (IntervalSet):
         return True
 
     def __iter__ (self):
-        raise RuntimeError("can't interate over ComplementaryIntervalSet")
+        raise RuntimeError ("can't interate over ComplementaryIntervalSet")
 
     def __invert__ (self):
         return IntervalSet (intervals = self.intervals, \
@@ -384,7 +384,7 @@ class ComplementaryIntervalSet (IntervalSet):
         yield (start, infinity)
 
     def boundedIterator (self, low, high):
-        raise RuntimeError("can't interate over ComplementaryIntervalSet")
+        raise RuntimeError ("can't interate over ComplementaryIntervalSet")
 
     def count (self, low, high):
         iterator = iter (self.intervals)
@@ -411,7 +411,7 @@ class ComplementaryIntervalSet (IntervalSet):
             return self.intervals[0][1] + 1
 
     def max (self):
-        raise RuntimeError('the maximum of a ComplementaryIntervalSet is infinity')
+        raise RuntimeError ('the maximum of a ComplementaryIntervalSet is infinity')
 
     def intersection (self, other):
         if isinstance (other, ComplementaryIntervalSet):

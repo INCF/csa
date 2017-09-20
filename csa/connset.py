@@ -67,10 +67,10 @@ class CSet (CSAObject):
     def makeValueSet (self, k):
         if isFinite (self.mask ()):
             return self.makeFiniteValueSet (k, self.mask ().bounds ())
-        raise RuntimeError("don't know how to return value set for this connection-set")
+        raise RuntimeError ("don't know how to return value set for this connection-set")
 
     def makeFiniteValueSet (self, k, bounds):
-        raise RuntimeError("don't know how to return value set for this connection-set")
+        raise RuntimeError ("don't know how to return value set for this connection-set")
 
     def __len__ (self):
         return len (self.mask ())
@@ -83,7 +83,7 @@ class CSet (CSAObject):
             (low0, high0, low1, high1) = self.bounds ()
             return obj.iterator (low0, high0, low1, high1, state)
         else:
-            raise RuntimeError('attempt to retrieve iterator over infinite connection-set')
+            raise RuntimeError ('attempt to retrieve iterator over infinite connection-set')
 
     def bounds (self):
         return self.mask ().bounds ()
@@ -235,7 +235,7 @@ class Mask (CSet):
         return N
 
     def __iter__ (self):
-        raise RuntimeError('attempt to retrieve iterator over infinite mask')
+        raise RuntimeError ('attempt to retrieve iterator over infinite mask')
 
     def __add__ (self, other):
         return self.multisetSum (other)
@@ -575,7 +575,7 @@ class IntervalSetMask (Mask):
                 set1 = self.set1.union (other.set1)
                 return intervalSetMask (set0, set1)
             else:
-                raise RuntimeError('sums of overlapping IntervalSetMask:s not yet supported')
+                raise RuntimeError ('sums of overlapping IntervalSetMask:s not yet supported')
         else:
             return FiniteMask.multisetSum (self, other)
 
@@ -998,7 +998,7 @@ class MaskPartition (Finite, Mask):
         return self.subMask.startIteration (state)
 
     def iterator (self, low0, high0, low1, high1, state):
-        raise RuntimeError('iterator called on wrong object')
+        raise RuntimeError ('iterator called on wrong object')
 
 
 class CSetPartition (CSet):
@@ -1026,5 +1026,5 @@ class CSetPartition (CSet):
         return self.subCSet.startIteration (state)
 
     def iterator (self, low0, high0, low1, high1, state):
-        raise RuntimeError('iterator called on wrong object')
+        raise RuntimeError ('iterator called on wrong object')
     
