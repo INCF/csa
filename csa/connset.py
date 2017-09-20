@@ -475,11 +475,32 @@ class MaskDifference (BinaryMask):
 def cmpPostOrder (c0, op1):
     return  ((c0[1], c0[0]) > (op1[1], op1[0])) -  ((c0[1], c0[0]) < (op1[1], op1[0]))
 
+
+def cmp_to_key(mycmp):
+    'Convert a cmp= function into a key= function'
+    class K:
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+    return K
+
+
 class ExplicitMask (FiniteMask):
     def __init__ (self, connections):
         FiniteMask.__init__ (self)
         self.connections = list (connections)
-        self.connections.sort (reverse=True)
+        self.connections.sort (key=cmp_to_key(cmpPostOrder))
         if connections:
             self.low0 = min ((i for (i, j) in self.connections))
             self.high0 = max ((i for (i, j) in self.connections)) + 1
@@ -916,7 +937,7 @@ class TransposedMask (Finite, Mask):
         for c in self.subMask.iterator (low1, high1, low0, high0, \
                                         self.transposedState):
             ls.append ((c[1], c[0]))
-        ls.sort (reverse=True)
+        ls.sort (key=cmp_to_key(cmpPostOrder))
         return iter (ls)
 
 
