@@ -26,30 +26,28 @@ try:
 except ImportError:
     pass
 
-
 class Closure (CSAObject):
     tag = 'closure'
     name = tag
-
-    def __init__(self, formals, e):
+    
+    def __init__ (self, formals, e):
         self.formals = formals
         self.etree = e
 
     @staticmethod
-    def formalToXML(formal):
-        return E('bvar', E('ci', formal))
+    def formalToXML (formal):
+        return E ('bvar', E ('ci', formal))
+    
+    def _to_xml (self):
+        formals = list(map (Closure.formalToXML, self.formals))
+        return E ('bind', E ('closure'), *formals + [ self.etree ])
 
-    def _to_xml(self):
-        formals = list(map(Closure.formalToXML, self.formals))
-        return E('bind', E('closure'), *formals + [self.etree])
-
-    def __call__(self, *args):
-        assert len(args) == len(
-            self.formals), "arguments %s don't match formals %s" % (args, self.formals)
+    def __call__ (self, *args):
+        assert len (args) == len (self.formals), "arguments %s don't match formals %s" % (args, self.formals)
         bindings = {}
         # for (formal, arg) in map (None, self.formals, args):
-        for (formal, arg) in map(self.formals, args):
+        for (formal, arg) in map (self.formals, args):
             bindings[formal] = arg
-        return CSAObject.from_xml(self.etree, bindings)
+        return CSAObject.from_xml (self.etree, bindings)
 
-registerTag(Closure.tag, Closure, BINDOPERATOR)
+registerTag (Closure.tag, Closure, BINDOPERATOR)
