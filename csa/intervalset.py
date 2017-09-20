@@ -348,7 +348,10 @@ class ComplementaryIntervalSet (IntervalSet):
 
     def __bool__ (self):
         return True
-    
+
+    # def __len__ (self):
+    #     raise RuntimeError ('ComplementaryIntervalSet has infinite length')
+ 
     def __contains__ (self, n):
         for i in self.intervals:
             if n < i[0]:
