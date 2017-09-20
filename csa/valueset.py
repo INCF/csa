@@ -18,160 +18,208 @@
 
 from .csaobject import *
 
+
 class ValueSet (CSAObject):
-    def __init__ (self):
-        CSAObject.__init__ (self, "valueset")
-        
-    def __neg__ (self):
-        return GenericValueSet (lambda i, j: - self (i, j))
-    
-    def __add__ (self, other):
-        if not callable (other):
-            return maybeAffine (other, 1.0, self)
-        elif isinstance (other, (QuotedValueSet, AffineValueSet)):
-            return other.__add__ (self)
-        elif isinstance (other, GenericValueSet):
-            return GenericValueSet (lambda i, j: self (i, j) + other.function (i, j))
+
+    def __init__(self):
+        CSAObject.__init__(self, "valueset")
+
+    def __neg__(self):
+        return GenericValueSet(lambda i, j: - self(i, j))
+
+    def __add__(self, other):
+        if not callable(other):
+            return maybeAffine(other, 1.0, self)
+        elif isinstance(other, (QuotedValueSet, AffineValueSet)):
+            return other.__add__(self)
+        elif isinstance(other, GenericValueSet):
+            return GenericValueSet(
+                lambda i,
+                j: self(
+                    i,
+                    j) +
+                other.function(
+                    i,
+                    j))
         else:
-            return GenericValueSet (lambda i, j: self (i, j) + other (i, j))
+            return GenericValueSet(lambda i, j: self(i, j) + other(i, j))
 
-    def __radd__ (self, other):
-        return self.__add__ (other)
+    def __radd__(self, other):
+        return self.__add__(other)
 
-    def __sub__ (self, other):
-        return self.__add__ (- other)
+    def __sub__(self, other):
+        return self.__add__(- other)
 
-    def __rsub__ (self, other):
-        return self.__neg__ ().__add__ (other)
+    def __rsub__(self, other):
+        return self.__neg__().__add__(other)
 
-    def __mul__ (self, other):
-        if not callable (other):
-            return maybeAffine (0.0, other, self)
-        elif isinstance (other, (QuotedValueSet, AffineValueSet)):
-            return other.__mul__ (self)
-        elif isinstance (other, GenericValueSet):
-            return GenericValueSet (lambda i, j: self (i, j) * other.function (i, j))
+    def __mul__(self, other):
+        if not callable(other):
+            return maybeAffine(0.0, other, self)
+        elif isinstance(other, (QuotedValueSet, AffineValueSet)):
+            return other.__mul__(self)
+        elif isinstance(other, GenericValueSet):
+            return GenericValueSet(
+                lambda i,
+                j: self(
+                    i,
+                    j) *
+                other.function(
+                    i,
+                    j))
         else:
-            return GenericValueSet (lambda i, j: self (i, j) * other (i, j))
+            return GenericValueSet(lambda i, j: self(i, j) * other(i, j))
 
-    def __rmul__ (self, other):
-        return self.__mul__ (other)
+    def __rmul__(self, other):
+        return self.__mul__(other)
 
 
 class QuotedValueSet (ValueSet):
-    def __init__ (self, expression):
-        ValueSet.__init__ (self)
+
+    def __init__(self, expression):
+        ValueSet.__init__(self)
         self.expression = expression
 
-    def __call__ (self, i, j):
+    def __call__(self, i, j):
         return self.expression
 
-    def __neg__ (self):
-        return QuotedValueSet (- self.expression)
-    
-    def __add__ (self, other):
-        if not callable (other):
-            return QuotedValueSet (self.expression + other)
-        elif isinstance (other, QuotedValueSet):
-            return QuotedValueSet (self.expression + other.expression)
-        elif isinstance (other, AffineValueSet):
-            return other.__add__ (self)
-        else:
-            return maybeAffine (self.expression, 1.0, other)
+    def __neg__(self):
+        return QuotedValueSet(- self.expression)
 
-    def __mul__ (self, other):
-        if not callable (other):
-            return QuotedValueSet (self.expression * other)
-        elif isinstance (other, QuotedValueSet):
-            return QuotedValueSet (self.expression * other.expression)
-        elif isinstance (other, AffineValueSet):
-            return other.__mul__ (self)
+    def __add__(self, other):
+        if not callable(other):
+            return QuotedValueSet(self.expression + other)
+        elif isinstance(other, QuotedValueSet):
+            return QuotedValueSet(self.expression + other.expression)
+        elif isinstance(other, AffineValueSet):
+            return other.__add__(self)
         else:
-            return maybeAffine (0.0, self.expression, other)        
+            return maybeAffine(self.expression, 1.0, other)
+
+    def __mul__(self, other):
+        if not callable(other):
+            return QuotedValueSet(self.expression * other)
+        elif isinstance(other, QuotedValueSet):
+            return QuotedValueSet(self.expression * other.expression)
+        elif isinstance(other, AffineValueSet):
+            return other.__mul__(self)
+        else:
+            return maybeAffine(0.0, self.expression, other)
 
 
 class GenericValueSet (ValueSet):
-    def __init__ (self, function):
-        ValueSet.__init__ (self)
+
+    def __init__(self, function):
+        ValueSet.__init__(self)
         self.function = function
 
-    def __call__ (self, i, j):
-        return self.function (i, j)
+    def __call__(self, i, j):
+        return self.function(i, j)
 
-    def __neg__ (self):
-        return GenericValueSet (lambda i, j: - self.function (i, j))
+    def __neg__(self):
+        return GenericValueSet(lambda i, j: - self.function(i, j))
 
-    def __add__ (self, other):
-        if not callable (other):
-            return maybeAffine (other, 1.0, self.function)
-        elif isinstance (other, (QuotedValueSet, AffineValueSet)):
-            return other.__add__ (self)
-        elif isinstance (other, GenericValueSet):
-            return GenericValueSet (lambda i, j: self.function (i, j) + other.function (i, j))
+    def __add__(self, other):
+        if not callable(other):
+            return maybeAffine(other, 1.0, self.function)
+        elif isinstance(other, (QuotedValueSet, AffineValueSet)):
+            return other.__add__(self)
+        elif isinstance(other, GenericValueSet):
+            return GenericValueSet(
+                lambda i,
+                j: self.function(
+                    i,
+                    j) +
+                other.function(
+                    i,
+                    j))
         else:
-            return GenericValueSet (lambda i, j: self.function (i, j) + other (i, j))
+            return GenericValueSet(
+                lambda i,
+                j: self.function(
+                    i,
+                    j) +
+                other(
+                    i,
+                    j))
 
-    def __mul__ (self, other):
-        if not callable (other):
-            return maybeAffine (0.0, other, self.function)
-        elif isinstance (other, (QuotedValueSet, AffineValueSet)):
-            return other.__mul__ (self)
-        elif isinstance (other, GenericValueSet):
-            return GenericValueSet (lambda i, j: self.function (i, j) * other.function (i, j))
+    def __mul__(self, other):
+        if not callable(other):
+            return maybeAffine(0.0, other, self.function)
+        elif isinstance(other, (QuotedValueSet, AffineValueSet)):
+            return other.__mul__(self)
+        elif isinstance(other, GenericValueSet):
+            return GenericValueSet(
+                lambda i,
+                j: self.function(
+                    i,
+                    j) *
+                other.function(
+                    i,
+                    j))
         else:
-            return GenericValueSet (lambda i, j: self.function (i, j) * other (i, j))
+            return GenericValueSet(
+                lambda i,
+                j: self.function(
+                    i,
+                    j) *
+                other(
+                    i,
+                    j))
 
 
 class AffineValueSet (ValueSet):
-    def __init__ (self, constant, coefficient, function):
-        ValueSet.__init__ (self)
+
+    def __init__(self, constant, coefficient, function):
+        ValueSet.__init__(self)
         self.const = constant
         self.coeff = coefficient
         self.func = function
 
-    def __call__ (self, i, j):
-        return self.const + self.coeff * self.func (i, j)
+    def __call__(self, i, j):
+        return self.const + self.coeff * self.func(i, j)
 
-    def __neg__ (self):
-        return maybeAffine (- self.const, - self.coeff, self.func)
-    
-    def __add__ (self, other):
-        if not callable (other):
-            return maybeAffine (self.const + other, self.coeff, self.func)
-        elif isinstance (other, QuotedValueSet):
-            return maybeAffine (self.const + other.expression,
-                                self.coeff, self.func)
-        elif isinstance (other, AffineValueSet):
+    def __neg__(self):
+        return maybeAffine(- self.const, - self.coeff, self.func)
+
+    def __add__(self, other):
+        if not callable(other):
+            return maybeAffine(self.const + other, self.coeff, self.func)
+        elif isinstance(other, QuotedValueSet):
+            return maybeAffine(self.const + other.expression,
+                               self.coeff, self.func)
+        elif isinstance(other, AffineValueSet):
             f = lambda i, j: \
-                    self.const * self.func (i, j) \
-                    + other.const * other.func (i, j)
-            return maybeAffine (self.const + other.const,
-                                1.0,
-                                f)
+                self.const * self.func (i, j) \
+                + other.const * other.func(i, j)
+            return maybeAffine(self.const + other.const,
+                               1.0,
+                               f)
 
-    def __mul__ (self, other):
-        if not callable (other):
-            return maybeAffine (self.const * other,
-                                self.coeff * other,
-                                self.func)
-        elif isinstance (other, QuotedValueSet):
-            return maybeAffine (self.const * other.expression,
-                                self.coeff * other.expression,
-                                self.func)
-        elif isinstance (other, AffineValueSet):
+    def __mul__(self, other):
+        if not callable(other):
+            return maybeAffine(self.const * other,
+                               self.coeff * other,
+                               self.func)
+        elif isinstance(other, QuotedValueSet):
+            return maybeAffine(self.const * other.expression,
+                               self.coeff * other.expression,
+                               self.func)
+        elif isinstance(other, AffineValueSet):
             f = lambda i, j: \
-                    other.const * self.coeff * self.func (i, j) \
-                    + self.const * other.coeff * other.func (i, j) \
-                    + self.coeff * other.coeff \
-                      * self.func (i, j) * other.func (i, j)
-            return maybeAffine (self.const * other.const,
-                                1.0,
-                                f)
+                other.const * self.coeff * self.func (i, j) \
+                + self.const * other.coeff * other.func (i, j) \
+                + self.coeff * other.coeff \
+                * self.func(i, j) * other.func(i, j)
+            return maybeAffine(self.const * other.const,
+                               1.0,
+                               f)
 
-def maybeAffine (const, coeff, func):
+
+def maybeAffine(const, coeff, func):
     if coeff == 0.0:
-        return QuotedValueSet (const)
+        return QuotedValueSet(const)
     elif const == 0.0 and coeff == 1.0:
-        return GenericValueSet (func)
+        return GenericValueSet(func)
     else:
-        return AffineValueSet (const, coeff, func)
+        return AffineValueSet(const, coeff, func)
