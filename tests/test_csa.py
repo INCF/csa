@@ -41,7 +41,7 @@ from io import StringIO
 
 class TestCSA(unittest.TestCase):
     def assertEqualCS (self, cs, ls, msg):
-        self.assertEqual([x for x in cs], ls, msg)
+        self.assertEqual ([x for x in cs], ls, msg)
 
     def assertEqual4x4 (self, cs, ls, msg):
         self.assertEqualCS (cross ((0, 3), (0, 3)) * cs, ls, msg)
@@ -153,11 +153,11 @@ class TestElementary (TestCSA):
         self.K = 5
         for _ in range(1000):
             res = self.partitionRandomN()
-            self.assertEqual(res.min(), 0.)
-            self.assertEqual(res.max(), self.K*2.)
-            self.assertEqual(res.shape, (self.K*12, self.K))
-            self.assertTrue((res.sum() <= self.K**2*12))
-            self.assertFalse(numpy.any((res != 0.) & (res != self.K*2.)))
+            self.assertEqual (res.min(), 0.)
+            self.assertEqual (res.max(), self.K*2.)
+            self.assertEqual (res.shape, (self.K*12, self.K))
+            self.assertTrue ((res.sum() <= self.K**2*12))
+            self.assertFalse (numpy.any((res != 0.) & (res != self.K*2.)))
     
     def intersectionRandomN (self):
         K = self.K
