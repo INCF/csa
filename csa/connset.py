@@ -956,8 +956,7 @@ class TransposedMask (Finite, Mask):
         for c in self.subMask.iterator(low1, high1, low0, high0,
                                        self.transposedState):
             ls.append((c[1], c[0]))
-        ls.sort(reverse=True)
-        return iter(ls)
+        return iter(sorted(ls))
 
 
 class ShiftedMask (Mask):
