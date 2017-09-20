@@ -18,56 +18,58 @@
 
 try:
     from nineml.connection_generator import ConnectionGenerator
-    HAVE_CG=True
+    HAVE_CG = True
 except ImportError:
-    HAVE_CG=False
+    HAVE_CG = False
 
 if HAVE_CG:
     from .csaobject import from_xml
     from .elementary import arity, cross, partition
     from .closure import Closure
-    
+
     class CSAConnectionGenerator (ConnectionGenerator):
-        def __init__ (self, cset):
+
+        def __init__(self, cset):
             self.cset = cset
             self.generator = False
 
         @property
-        def arity (self):
-            return arity (self.cset)
+        def arity(self):
+            return arity(self.cset)
 
-        def setMask (self, mask):
-            self.setMasks ([mask], 0)
+        def setMask(self, mask):
+            self.setMasks([mask], 0)
 
-        def setMasks (self, masks, local):
-            csaMasks = list(map (CSAConnectionGenerator.makeMask, masks))
-            self.generator = partition (self.cset, csaMasks, local)
-
-        @staticmethod
-        def makeMask (mask):
-            return cross (CSAConnectionGenerator.makeIList (mask.sources),
-                          CSAConnectionGenerator.makeIList (mask.targets))
+        def setMasks(self, masks, local):
+            csaMasks = list(map(CSAConnectionGenerator.makeMask, masks))
+            self.generator = partition(self.cset, csaMasks, local)
 
         @staticmethod
-        def makeIList (iset):
+        def makeMask(mask):
+            return cross(CSAConnectionGenerator.makeIList(mask.sources),
+                         CSAConnectionGenerator.makeIList(mask.targets))
+
+        @staticmethod
+        def makeIList(iset):
             if iset.skip == 1:
                 return iset.intervals
             else:
                 ls = []
                 for ivl in iset.intervals:
-                    for i in range (ivl[0], ivl[1] + 1, iset.skip):
-                        ls.append ((i, i))
+                    for i in range(ivl[0], ivl[1] + 1, iset.skip):
+                        ls.append((i, i))
                 return ls
 
-        def __len__ (self):
-            return self.generator.__len__ ()
+        def __len__(self):
+            return self.generator.__len__()
 
-        def __iter__ (self):
-            return self.generator.__iter__ ()
+        def __iter__(self):
+            return self.generator.__iter__()
 
-def connectionGeneratorClosureFromXML (element):
-    cset = from_xml (element)
-    if isinstance (cset, Closure):
-        return lambda *args: CSAConnectionGenerator (cset (*args))
+
+def connectionGeneratorClosureFromXML(element):
+    cset = from_xml(element)
+    if isinstance(cset, Closure):
+        return lambda *args: CSAConnectionGenerator(cset(*args))
     else:
-        return lambda: CSAConnectionGenerator (cset)
+        return lambda: CSAConnectionGenerator(cset)
