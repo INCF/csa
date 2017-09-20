@@ -171,24 +171,24 @@ class IntervalSet (CSAObject):
 
     def boundedIterator (self, low, high):
         iterator = iter (self.intervals)
-        i = next(iterator)
+        i = next (iterator)
         while i[1] < low:
-            i = next(iterator)
+            i = next (iterator)
         while i[0] < high:
             for e in range (max (low, i[0]), min (i[1] + 1, high)):
                 yield e
-            i = next(iterator)
+            i = next (iterator)
 
     def count (self, low, high):
         iterator = iter (self.intervals)
         c = 0
         try:
-            i = next(iterator)
+            i = next (iterator)
             while i[1] < low:
-                i = next(iterator)
+                i = next (iterator)
             while i[0] < high:
                 c += min (i[1] + 1, high) - max (low, i[0])
-                i = next(iterator)
+                i = next (iterator)
         except StopIteration:
             pass
         return c
@@ -223,21 +223,21 @@ class IntervalSet (CSAObject):
         iter0 = self.intervalIterator ()
         iter1 = other.intervalIterator ()
         try:
-            i0 = next(iter0)
-            i1 = next(iter1)
+            i0 = next (iter0)
+            i1 = next (iter1)
             while True:
                 if i0[1] <= i1[1]:
                     if i0[1] >= i1[0]:
                         lower = max (i0[0], i1[0])
                         res.append ((lower, i0[1]))
                         N += 1 + i0[1] - lower
-                    i0 = next(iter0)
+                    i0 = next (iter0)
                 else:
                     if i1[1] >= i0[0]:
                         lower = max (i0[0], i1[0])
                         res.append ((lower, i1[1]))
                         N += 1 + i1[1] - lower
-                    i1 = next(iter1)
+                    i1 = next (iter1)
         except StopIteration:
             pass
         iset = IntervalSet ()
@@ -262,8 +262,8 @@ class IntervalSet (CSAObject):
         N = 0
         iter0 = self.intervalIterator ()
         iter1 = other.intervalIterator ()
-        i0 = next(iter0)
-        i1 = next(iter1)
+        i0 = next (iter0)
+        i1 = next (iter1)
         if i0[0] <= i1[0]:
             (lower, upper) = i0
         else:
@@ -279,7 +279,7 @@ class IntervalSet (CSAObject):
                         N += 1 + upper - lower
                         (lower, upper) = i0
                     try:
-                        i0 = next(iter0)
+                        i0 = next (iter0)
                     except StopIteration:
                         if i1[0] <= upper + 1:
                             if i1[1] > upper:
@@ -291,7 +291,7 @@ class IntervalSet (CSAObject):
                         while True:
                             res.append (i1)
                             N += 1 + i1[1] - i1[0]
-                            i1 = next(iter1)
+                            i1 = next (iter1)
                 else:
                     if i1[0] <= upper + 1:
                         if i1[1] > upper:
@@ -301,7 +301,7 @@ class IntervalSet (CSAObject):
                         N += 1 + upper - lower
                         (lower, upper) = i1
                     try:
-                        i1 = next(iter1)
+                        i1 = next (iter1)
                     except StopIteration:
                         if i0[0] <= upper + 1:
                             if i0[1] > upper:
@@ -313,7 +313,7 @@ class IntervalSet (CSAObject):
                         while True:
                             res.append (i0)
                             N += 1 + i0[1] - i0[0]
-                            i0 = next(iter0)
+                            i0 = next (iter0)
         except StopIteration:
             pass
         iset.intervals = res
@@ -391,13 +391,13 @@ class ComplementaryIntervalSet (IntervalSet):
         c = 0
         prev = low
         try:
-            i = next(iterator)
+            i = next (iterator)
             while i[1] < low:
-                i = next(iterator)
+                i = next (iterator)
             while i[0] < high:
                 c += i[0] - prev
                 prev = i[1] + 1
-                i = next(iterator)
+                i = next (iterator)
         except StopIteration:
             pass
         if prev < high:
