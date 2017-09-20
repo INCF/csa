@@ -18,36 +18,29 @@
 
 from . import _misc
 
+def disc (r):
+    return _misc.Disc (r)
 
-def disc(r):
-    return _misc.Disc(r)
+def rectangle (width, height):
+    return _misc.Rectangle (width, height)
+ 
+def gaussian (sigma, cutoff):
+    return _misc.Gaussian (sigma, cutoff)
 
+def block (M, N = None):
+    return _misc.Block (M, M if N == None else N)
 
-def rectangle(width, height):
-    return _misc.Rectangle(width, height)
+def repeat (M, N = None):
+    return _misc.Repeat (M, M if N == None else N)
 
+transpose = _misc.Transpose ()
 
-def gaussian(sigma, cutoff):
-    return _misc.Gaussian(sigma, cutoff)
+def shift (M, N):
+    return _misc.Shift (M, N)
 
+fix = _misc.Fix ()
 
-def block(M, N=None):
-    return _misc.Block(M, M if N is None else N)
+def block1 (N):
+    return _misc.Block (N)
 
-
-def repeat(M, N=None):
-    return _misc.Repeat(M, M if N is None else N)
-
-transpose = _misc.Transpose()
-
-
-def shift(M, N):
-    return _misc.Shift(M, N)
-
-fix = _misc.Fix()
-
-
-def block1(N):
-    return _misc.Block(N)
-
-# del _misc                               # not for export
+#del _misc                               # not for export
