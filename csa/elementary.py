@@ -28,91 +28,75 @@ from .csaobject import registerTag
 
 # Connection-Set constructor
 #
-
-
-def cset(mask, *valueSets):
+def cset (mask, *valueSets):
     if valueSets:
-        c = _cs.ExplicitCSet(mask, *valueSets)
-        return _cs.ConnectionSet(c)
+        c = _cs.ExplicitCSet (mask, *valueSets)
+        return _cs.ConnectionSet (c)
     else:
         return mask
 
-registerTag(_cs.CSet.tag, cset, 1)
+registerTag (_cs.CSet.tag, cset, 1)
 
 # Selectors
 #
+def mask (obj):
+    cset = _cs.coerceCSet (obj)
+    return cset.mask ()
 
+def value (obj, k):
+    assert isinstance (obj, _cs.ConnectionSet), 'expected connection-set'
+    return obj.c.value (k)
 
-def mask(obj):
-    cset = _cs.coerceCSet(obj)
-    return cset.mask()
-
-
-def value(obj, k):
-    assert isinstance(obj, _cs.ConnectionSet), 'expected connection-set'
-    return obj.c.value(k)
-
-
-def arity(obj):
-    if isinstance(obj, _cs.ConnectionSet):
+def arity (obj):
+    if isinstance (obj, _cs.ConnectionSet):
         return obj.c.arity
     else:
         return 0
 
 # Value-set constructor
 #
-
-
-def vset(obj):
-    if not callable(obj):
-        return _vs.QuotedValueSet(obj)
+def vset (obj):
+    if not callable (obj):
+        return _vs.QuotedValueSet (obj)
     else:
-        return _vs.GenericValueSet(obj)
+        return _vs.GenericValueSet (obj)
 
 # Intervals
 #
-
-
-def ival(beg, end):
-    return _iset.IntervalSet((beg, end))
+def ival (beg, end):
+    return _iset.IntervalSet ((beg, end))
 
 N = _iset.N
 
 # Cartesian product
 #
-
-
-def cross(set0, set1):
-    return _cs.intervalSetMask(set0, set1)
+def cross (set0, set1):
+    return _cs.intervalSetMask (set0, set1)
 
 # Elementary masks
 #
-empty = cross([], [])
+empty = cross ([], [])
 
-full = _elementary.FullMask()
+full = _elementary.FullMask ()
 
-oneToOne = _elementary.OneToOne()
+oneToOne = _elementary.OneToOne ()
 
-random = _misc.Random()
+random = _misc.Random ()
 
 # Support for parallel simulator
 #
-
-
-def partition(c, masks, selected, seed=None):
-    if isinstance(c, _cs.Mask):
-        return _cs.MaskPartition(c, masks, selected, seed)
-    elif isinstance(c, _cs.ConnectionSet):
-        return _cs.ConnectionSet(_cs.CSetPartition(c, masks, selected, seed))
+def partition (c, masks, selected, seed = None):
+    if isinstance (c, _cs.Mask):
+        return _cs.MaskPartition (c, masks, selected, seed)
+    elif isinstance (c, _cs.ConnectionSet):
+        return _cs.ConnectionSet (_cs.CSetPartition (c, masks, selected, seed))
 
 # Utilities
 #
-
-
-def tabulate(c):
+def tabulate (c):
     for x in c:
         print(u'{}'.format(x[0]), end=u' ')
         for e in x[1:]:
             print(u'\t{}'.format(e))
-
-# del _elementary, cs, sys                # not for export
+        
+#del _elementary, cs, sys                # not for export
