@@ -22,7 +22,8 @@ import numpy as _numpy
 
 from . import intervalset as _iset
 
-def grid2d (width, xScale = 1.0, yScale = 1.0, x0 = 0.0, y0 = 0.0):
+
+def grid2d(width, xScale=1.0, yScale=1.0, x0=0.0, y0=0.0):
     xScale /= width
     yScale /= width
     g = lambda i: \
@@ -34,13 +35,14 @@ def grid2d (width, xScale = 1.0, yScale = 1.0, x0 = 0.0, y0 = 0.0):
     g.x0 = x0
     g.y0 = y0
     g.inverse = lambda x, y: \
-                    int (round (x / xScale - x0)) \
-                    + width * int (round (y / yScale - y0))
+        int (round (x / xScale - x0)) \
+        + width * int(round(y / yScale - y0))
     return g
 
-def random2d (N, xScale = 1.0, yScale = 1.0):
-    coords = [(xScale * _random.random (), yScale * _random.random ())
-              for i in range (0, N)]
+
+def random2d(N, xScale=1.0, yScale=1.0):
+    coords = [(xScale * _random.random(), yScale * _random.random())
+              for i in range(0, N)]
     g = lambda i: coords[i]
     g.type = 'ramdom'
     g.N = N
@@ -48,36 +50,42 @@ def random2d (N, xScale = 1.0, yScale = 1.0):
     g.yScale = yScale
     # We should use a KD-tree here
     g.inverse = lambda x, y, domain=_iset.IntervalSet ((0, N - 1)): \
-                    _numpy.array ([euclidDistance2d ((x, y), g(i)) \
-                                   for i in domain]).argmin () \
-                                   + domain.min ()
+        _numpy.array([euclidDistance2d((x, y), g(i))
+                      for i in domain]).argmin () \
+        + domain.min()
     return g
 
+
 class ProjectionOperator (object):
-    def __init__ (self, projection):
+
+    def __init__(self, projection):
         self.projection = projection
 
-    def __mul__ (self, g):
+    def __mul__(self, g):
         projection = self.projection
-        return lambda i: projection (g (i))
+        return lambda i: projection(g(i))
 
-def euclidDistance2d (p1, p2):
+
+def euclidDistance2d(p1, p2):
     dx = p1[0] - p2[0]
     dy = p1[1] - p2[1]
-    return _math.sqrt (dx * dx + dy * dy)
+    return _math.sqrt(dx * dx + dy * dy)
 
-def euclidMetric2d (g1, g2 = None):
-    g2 = g1 if g2 == None else g2
-    return lambda i, j: euclidDistance2d (g1 (i), g2 (j))
+
+def euclidMetric2d(g1, g2=None):
+    g2 = g1 if g2 is None else g2
+    return lambda i, j: euclidDistance2d(g1(i), g2(j))
 
 # These functions were contributed by Dr. Birgit Kriener
 
-def euclidToroidDistance2d (p1, p2, xScale=1.0, yScale=1.0):
-    ddx, ddy = abs (p1[0] - p2[0]), abs (p1[1] - p2[1])
-    dx = ddx if ddx < xScale/2. else  xScale - ddx
-    dy = ddy if ddy < yScale/2. else  yScale - ddy
-    return _math.sqrt (dx * dx + dy * dy)
 
-def euclidToroidMetric2d (g1, g2 = None, xScale=1.0, yScale=1.0):
-    g2 = g1 if g2 == None else g2
-    return lambda i, j: euclidToroidDistance2d (g1 (i), g2 (j), xScale, yScale)
+def euclidToroidDistance2d(p1, p2, xScale=1.0, yScale=1.0):
+    ddx, ddy = abs(p1[0] - p2[0]), abs(p1[1] - p2[1])
+    dx = ddx if ddx < xScale / 2. else xScale - ddx
+    dy = ddy if ddy < yScale / 2. else yScale - ddy
+    return _math.sqrt(dx * dx + dy * dy)
+
+
+def euclidToroidMetric2d(g1, g2=None, xScale=1.0, yScale=1.0):
+    g2 = g1 if g2 is None else g2
+    return lambda i, j: euclidToroidDistance2d(g1(i), g2(j), xScale, yScale)
