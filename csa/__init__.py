@@ -22,15 +22,15 @@ try:
 except OSError:
     None
 
-from version import __version__
-from connset import Mask
-from connset import ConnectionSet
-from elementary import *
+from .version import __version__
+from .connset import Mask
+from .connset import ConnectionSet
+from .elementary import *
 #from operators import *
 #from arithmetic import *
-from misc import *
-from geometry import *
-from csaobject import parse, from_xml
-from plot import *
-from closure import *
-from conngen import *
+from .misc import *
+from .geometry import *
+from .csaobject import parse, from_xml
+from .plot import *
+from .closure import *
+from .conngen import *

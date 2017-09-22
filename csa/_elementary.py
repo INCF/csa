@@ -20,10 +20,10 @@ import random
 import numpy
 import copy
 
-import connset as cs
-import intervalset as iset
+from . import connset as cs
+from . import intervalset as iset
 
-from csaobject import *
+from .csaobject import *
 
 class FullMask (cs.IntervalSetMask):
     tag = 'full'
@@ -49,7 +49,7 @@ class OneToOne (cs.Mask):
         CSAObject.tag_map[CSA + OneToOne.tag] = (self, SINGLETON)
     
     def iterator (self, low0, high0, low1, high1, state):
-        for i in xrange (max (low0, low1), min (high0, high1)):
+        for i in range (max (low0, low1), min (high0, high1)):
             yield (i, i)
 
 
@@ -67,8 +67,8 @@ class ConstantRandomMask (cs.Mask):
         return self
 
     def iterator (self, low0, high0, low1, high1, state):
-        for j in xrange (low1, high1):
-            for i in xrange (low0, high0):
+        for j in range (low1, high1):
+            for i in range (low0, high0):
                 if random.random () < self.p:
                     yield (i, j)
 
@@ -125,8 +125,8 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
         obj.isPartitioned = False
         if 'partitions' in state:
             obj.isPartitioned = True
-            partitions = map (self.mask.intersection, state['partitions'])
-            sizes = map (len, partitions)
+            partitions = list (map (self.mask.intersection, state['partitions']))
+            sizes = list (map (len, partitions))
             total = sum (sizes)
             
             # The following yields the same result on all processes.
@@ -170,7 +170,7 @@ class SampleNRandomMask (cs.Finite,cs.Mask):
         nSources = len (self.sources)
         for j in self.mask.set1.boundedIterator (low1, high1):
             s = []
-            for k in xrange (0, self.perTarget[m]):
+            for k in range (0, self.perTarget[m]):
                 i = random.randint (0, self.N0 - 1)
                 if i < nSources:
                     s.append (self.sources[i])
@@ -234,7 +234,7 @@ class FanInRandomMask (cs.Finite, cs.Mask):
         obj.isPartitioned = False
         if 'partitions' in state:
             obj.isPartitioned = True
-            partitions = map (self.mask.intersection, state['partitions'])
+            partitions = list (map (self.mask.intersection, state['partitions']))
             
             # The following yields the same result on all processes.
             # We should add a seed function to the CSA.
@@ -257,7 +257,7 @@ class FanInRandomMask (cs.Finite, cs.Mask):
             for j in obj.mask.set1:
                 size = 0
                 sourceDist = numpy.zeros (len (partitions))
-                for k in xrange (len (partitions)):
+                for k in range (len (partitions)):
                     if j in partitions[k].set1:
                         sourceDist[k] = len (partitions[k].set0)
                 sourceDist /= sum (sourceDist)
@@ -286,7 +286,7 @@ class FanInRandomMask (cs.Finite, cs.Mask):
         nSources = len (self.sources)
         for j in self.mask.set1.boundedIterator (low1, high1):
             s = []
-            for k in xrange (0, self.perTarget[m]):
+            for k in range (0, self.perTarget[m]):
                 i = random.randint (0, self.N0 - 1)
                 if i < nSources:
                     s.append (self.sources[i])

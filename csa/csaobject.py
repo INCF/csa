@@ -39,7 +39,7 @@ def to_xml (obj):
     elif isinstance (obj, CSAObject):
         return obj._to_xml ()
     else:
-        raise RuntimeError, "don't know how to turn %s into xml" % obj
+        raise RuntimeError ("don't know how to turn %s into xml" % obj)
 
 # precedence levels:
 #
@@ -80,7 +80,7 @@ class CSAObject (object):
 
     @classmethod
     def apply (cls, operator, *operands):
-        return E ('apply', to_xml (operator), *map (to_xml, operands))
+        return E ('apply', to_xml (operator), *list (map (to_xml, operands)))
 
     @classmethod
     def formalFromXML (cls, element):
@@ -121,7 +121,7 @@ class CSAObject (object):
             tag = nodes[0].tag
             entry = CSAObject.tag_map[tag]
             if entry[1] != BINDOPERATOR:
-                raise RuntimeError, "unknown binding operator tag %s" % tag
+                raise RuntimeError ("unknown binding operator tag %s" % tag)
             bindingOperator = entry[0]
             bvars = [ CSAObject.formalFromXML (e) for e in nodes[1:-1] ]
             return bindingOperator (bvars, nodes[-1])
@@ -135,10 +135,10 @@ class CSAObject (object):
             else:
                 return obj ()
         else:
-            raise RuntimeError, "don't know how parse tag %s" % element.tag
+            raise RuntimeError ("don't know how parse tag %s" % element.tag)
 
     def xml (e):
-        print etree.tostring (e)
+        print(etree.tostring (e))
 
     def write(self, file):
         doc = self.to_xml ()

@@ -23,9 +23,9 @@ except ImportError:
     HAVE_CG=False
 
 if HAVE_CG:
-    from csaobject import from_xml
-    from elementary import arity, cross, partition
-    from closure import Closure
+    from .csaobject import from_xml
+    from .elementary import arity, cross, partition
+    from .closure import Closure
     
     class CSAConnectionGenerator (ConnectionGenerator):
         def __init__ (self, cset):
@@ -40,7 +40,7 @@ if HAVE_CG:
             self.setMasks ([mask], 0)
 
         def setMasks (self, masks, local):
-            csaMasks = map (CSAConnectionGenerator.makeMask, masks)
+            csaMasks = list (map (CSAConnectionGenerator.makeMask, masks))
             self.generator = partition (self.cset, csaMasks, local)
 
         @staticmethod
@@ -55,7 +55,7 @@ if HAVE_CG:
             else:
                 ls = []
                 for ivl in iset.intervals:
-                    for i in xrange (ivl[0], ivl[1] + 1, iset.skip):
+                    for i in range (ivl[0], ivl[1] + 1, iset.skip):
                         ls.append ((i, i))
                 return ls
 

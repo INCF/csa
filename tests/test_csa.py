@@ -16,20 +16,32 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import with_statement
-
 import sys
 import numpy
 
 from csa import *
 
 import unittest
-from test import test_support
+
+import sys
+if sys.version < '3.4':
+    from contextlib import contextmanager
+    @contextmanager
+    def redirect_stdout(stream):
+        old_stdout = sys.stdout
+        sys.stdout = stream
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+else:
+    from contextlib import redirect_stdout
+from io import StringIO
 
 
 class TestCSA(unittest.TestCase):
     def assertEqualCS (self, cs, ls, msg):
-        self.assertEqual([x for x in cs], ls, msg)
+        self.assertEqual ([x for x in cs], ls, msg)
 
     def assertEqual4x4 (self, cs, ls, msg):
         self.assertEqualCS (cross ((0, 3), (0, 3)) * cs, ls, msg)
@@ -39,7 +51,7 @@ class TestCSA(unittest.TestCase):
 
     def sampleN (self, func, dims, N):
         data = numpy.zeros ((N,) + dims)
-        for k in xrange (N):
+        for k in range (N):
             data[k] = func ()
         return numpy.mean (data, 0)
 
@@ -59,34 +71,36 @@ class TestElementary (TestCSA):
                                [(22,7),(8,23)],
                                'list cs')
 
-    def test_xrange (self):
-        # Test xrange
-        self.assertEqual30x30 (cross (xrange (10), xrange (10, 20, 3)),
-                               [(i, j) for j in xrange (10, 20, 3) for i in xrange (10)],
+    def test_range (self):
+        # Test range
+        self.assertEqual30x30 (cross (range (10), range (10, 20, 3)),
+                               [(i, j) for j in range (10, 20, 3) for i in range (10)],
                                'xrange specified interval set mask')
 
     def test_full (self):
         # Test full cs
         self.assertEqualCS (cross ((0, 7), (8, 15)) * full, 
-                            [(i, j) for j in xrange (8, 16) for i in xrange (0, 8)],
+                            [(i, j) for j in range (8, 16) for i in range (0, 8)],
                             'finite piece of full connection-set bogus')
 
     def test_oneToOne (self):
         # Test oneToOne cs
         self.assertEqualCS (cross ((0, 7), (1, 8)) * oneToOne, 
-                            [(i, i) for i in xrange (1, 8)],
+                            [(i, i) for i in range (1, 8)],
                             'finite piece of oneToOne connection-set bogus')
 
     def test_tabulate (self):
         # Test tabulate
         if sys.version < '2.6':         #*fixme*
             return
-        with test_support.captured_stdout () as s:
+        s = StringIO()
+        with redirect_stdout(s):
             tabulate (cross ((0, 3), (0, 3)) * oneToOne)
         self.assertEqual (s.getvalue (),
                           '0 \t0\n1 \t1\n2 \t2\n3 \t3\n',
                           'tabulate malfunctioning')
-
+        
+                
     def test_gaussnet (self):
         e = ival (0, 19)
         i = ival (20, 29)
@@ -137,9 +151,14 @@ class TestElementary (TestCSA):
 
     def test_partitionRandomN (self):
         self.K = 5
-        res = self.sampleN (self.partitionRandomN, (12 * self.K, self.K), 1000)
-        for x in res.flatten ():
-            self.assertAlmostEqual (x, 1.0, 0, 'maybe wrong statistics %g != 1.' % x)
+        for _ in range(1000):
+            res = self.partitionRandomN()
+            self.assertEqual (res.min(), 0.)
+            self.assertEqual (res.max(), self.K*2.)
+            self.assertEqual (res.shape, (self.K*12, self.K))
+            self.assertTrue ((res.sum() <= self.K**2*12))
+            self.assertFalse (numpy.any((res != 0.) & (res != self.K*2.)))
+    
     def intersectionRandomN (self):
         K = self.K
         N = 3 * K
@@ -174,14 +193,15 @@ class TestOperators (TestCSA):
     def test_difference (self):
         # Test difference
         self.assertEqual4x4 (full - oneToOne,
-                            [(i, j) for j in xrange (0,4) for i in xrange (0,4) if i != j],
+                            [(i, j) for j in range (0,4) for i in range (0,4) if i != j],
                             'difference operator')
 
 
 def main():
-    test_support.run_unittest(TestElementary,
-                              TestOperators
-                             )
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestElementary,
+                                                        TestOperators)
+    unittest.TextTestRunner(verbosity=verbosity).run(suite)
+
 
 if __name__ == '__main__':
     main()

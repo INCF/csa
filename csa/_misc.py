@@ -21,11 +21,11 @@ import random
 import copy
 #from scipy.spatial import KDTree
 
-import connset as cs
-import valueset as vs
-import _elementary
+from . import connset as cs
+from . import valueset as vs
+from . import _elementary
 
-from csaobject import *
+from .csaobject import *
 
 class Random (cs.Operator):
     def __mul__ (self, valueSet):
@@ -60,8 +60,8 @@ class ValueSetRandomMask (cs.Mask):
         return self
 
     def iterator (self, low0, high0, low1, high1, state):
-        for j in xrange (low1, high1):
-            for i in xrange (low0, high0):
+        for j in range (low1, high1):
+            for i in range (low0, high0):
                 if random.random () < self.valueSet (i, j):
                     yield (i, j)
 
@@ -84,8 +84,8 @@ class DiscMask (cs.Mask):
         self.metric = metric
 
     def iterator (self, low0, high0, low1, high1, state):
-        for j in xrange (low1, high1):
-            for i in xrange (low0, high0):
+        for j in range (low1, high1):
+            for i in range (low0, high0):
                 if self.metric (i, j) < self.r:
                     yield (i, j)
 
@@ -112,8 +112,8 @@ class RectangleMask (cs.Mask):
         self.g1 = g1
 
     def iterator (self, low0, high0, low1, high1, state):
-        for j in xrange (low1, high1):
-            for i in xrange (low0, high0):
+        for j in range (low1, high1):
+            for i in range (low0, high0):
                 p0 = self.g0 (i)
                 p1 = self.g1 (j)
                 dx = p0[0] - p1[0]
@@ -181,29 +181,29 @@ class BlockMask (cs.Mask):
                                        state)
         try:
             pre = []
-            (i, j) = maskIter.next ()
+            (i, j) = next (maskIter)
             while True:
                 # collect connections in one connection matrix column
                 post = j
                 while j == post:
                     pre.append (i)
-                    (i, j) = maskIter.next ()
+                    (i, j) = next (maskIter)
 
                 # generate blocks for the column
-                for jj in xrange (max (self.N * post, low1),
+                for jj in range (max (self.N * post, low1),
                                   min (self.N * (post + 1), high1)):
                     for k in pre:
-                        for ii in xrange (max (self.M * k, low0),
+                        for ii in range (max (self.M * k, low0),
                                           min (self.M * (k + 1), high0)):
                             yield (ii, jj)
                 pre = []
         except StopIteration:
             if pre:
                 # generate blocks for the last column
-                for jj in xrange (max (self.N * post, low1),
+                for jj in range (max (self.N * post, low1),
                                   min (self.N * (post + 1), high1)):
                     for k in pre:
-                        for ii in xrange (max (self.M * k, low0),
+                        for ii in range (max (self.M * k, low0),
                                           min (self.M * (k + 1), high0)):
                             yield (ii, jj)
 
@@ -242,13 +242,13 @@ class RepeatMask (cs.Mask):
                                          self.N,
                                          state)
             try:
-                (i, j) = maskIter.next ()
+                (i, j) = next (maskIter)
                 post = j
                 while post < self.N:
                     pre = []
                     while j == post:
                         pre.append (i)
-                        (i, j) = maskIter.next ()
+                        (i, j) = next (maskIter)
                     ii = low0
                     while ii < high0:
                         for k in pre:
@@ -303,7 +303,7 @@ class FixedMask (cs.FiniteMask):
         for c in mask:
             ls.append (c)
         self.connections = ls
-        targets = map (cs.target, ls)
+        targets = list (map (cs.target, ls))
         self.low0 = min (ls)[0]
         self.high0 = max (ls)[0] + 1
         self.low1 = min (targets)
