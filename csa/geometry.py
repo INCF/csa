@@ -20,7 +20,7 @@ import math as _math
 import random as _random
 import numpy as _numpy
 
-import intervalset as _iset
+from . import intervalset as _iset
 
 def grid2d (width, xScale = 1.0, yScale = 1.0, x0 = 0.0, y0 = 0.0):
     xScale /= width
@@ -40,7 +40,7 @@ def grid2d (width, xScale = 1.0, yScale = 1.0, x0 = 0.0, y0 = 0.0):
 
 def random2d (N, xScale = 1.0, yScale = 1.0):
     coords = [(xScale * _random.random (), yScale * _random.random ())
-              for i in xrange (0, N)]
+              for i in range (0, N)]
     g = lambda i: coords[i]
     g.type = 'ramdom'
     g.N = N

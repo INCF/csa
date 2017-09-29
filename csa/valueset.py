@@ -16,7 +16,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from csaobject import *
+from .csaobject import *
 
 class ValueSet (CSAObject):
     def __init__ (self):

@@ -18,9 +18,9 @@
 
 import sys
 
-from csaobject import *
+from .csaobject import *
 
-infinity = sys.maxint - 1
+infinity = sys.maxsize - 1
 
 # Interval sets are represented as ordered lists of closed intervals
 #
@@ -31,12 +31,12 @@ class IntervalSet (CSAObject):
     # return true if tuple i represents a well-formed interval
     def goodInterval (i):
         return len (i) == 2 \
-               and isinstance (i[0], (int, long)) \
-               and isinstance (i[1], (int, long)) \
+               and isinstance (i[0], int) \
+               and isinstance (i[1], int) \
                and i[0] <= i[1]
 
     @staticmethod
-    def xrangeToIntervals (x):
+    def rangeToIntervals (x):
         if not x:
             return []
         elif len (x) == 1:
@@ -58,10 +58,10 @@ class IntervalSet (CSAObject):
                 res.append (x)
             elif isinstance (x, int):
                 res.append ((x, x))
-            elif isinstance (x, xrange):
-                res += IntervalSet.xrangeToIntervals (x)
+            elif isinstance (x, range):
+                res += IntervalSet.rangeToIntervals (x)
             else:
-                raise TypeError, "can't interpret element as interval"
+                raise TypeError ("can't interpret element as interval")
         s = res
 
         s.sort ()
@@ -115,7 +115,7 @@ class IntervalSet (CSAObject):
 
     def __iter__ (self):
         for i in self.intervals:
-            for e in xrange (i[0], i[1] + 1):
+            for e in range (i[0], i[1] + 1):
                 yield e
 
     def __invert__ (self):
@@ -171,24 +171,24 @@ class IntervalSet (CSAObject):
 
     def boundedIterator (self, low, high):
         iterator = iter (self.intervals)
-        i = iterator.next ()
+        i = next (iterator)
         while i[1] < low:
-            i = iterator.next ()
+            i = next (iterator)
         while i[0] < high:
-            for e in xrange (max (low, i[0]), min (i[1] + 1, high)):
+            for e in range (max (low, i[0]), min (i[1] + 1, high)):
                 yield e
-            i = iterator.next ()
+            i = next (iterator)
 
     def count (self, low, high):
         iterator = iter (self.intervals)
         c = 0
         try:
-            i = iterator.next ()
+            i = next (iterator)
             while i[1] < low:
-                i = iterator.next ()
+                i = next (iterator)
             while i[0] < high:
                 c += min (i[1] + 1, high) - max (low, i[0])
-                i = iterator.next ()
+                i = next (iterator)
         except StopIteration:
             pass
         return c
@@ -223,21 +223,21 @@ class IntervalSet (CSAObject):
         iter0 = self.intervalIterator ()
         iter1 = other.intervalIterator ()
         try:
-            i0 = iter0.next ()
-            i1 = iter1.next ()
+            i0 = next (iter0)
+            i1 = next (iter1)
             while True:
                 if i0[1] <= i1[1]:
                     if i0[1] >= i1[0]:
                         lower = max (i0[0], i1[0])
                         res.append ((lower, i0[1]))
                         N += 1 + i0[1] - lower
-                    i0 = iter0.next ()
+                    i0 = next (iter0)
                 else:
                     if i1[1] >= i0[0]:
                         lower = max (i0[0], i1[0])
                         res.append ((lower, i1[1]))
                         N += 1 + i1[1] - lower
-                    i1 = iter1.next ()
+                    i1 = next (iter1)
         except StopIteration:
             pass
         iset = IntervalSet ()
@@ -262,8 +262,8 @@ class IntervalSet (CSAObject):
         N = 0
         iter0 = self.intervalIterator ()
         iter1 = other.intervalIterator ()
-        i0 = iter0.next ()
-        i1 = iter1.next ()
+        i0 = next (iter0)
+        i1 = next (iter1)
         if i0[0] <= i1[0]:
             (lower, upper) = i0
         else:
@@ -279,7 +279,7 @@ class IntervalSet (CSAObject):
                         N += 1 + upper - lower
                         (lower, upper) = i0
                     try:
-                        i0 = iter0.next ()
+                        i0 = next (iter0)
                     except StopIteration:
                         if i1[0] <= upper + 1:
                             if i1[1] > upper:
@@ -291,7 +291,7 @@ class IntervalSet (CSAObject):
                         while True:
                             res.append (i1)
                             N += 1 + i1[1] - i1[0]
-                            i1 = iter1.next ()
+                            i1 = next (iter1)
                 else:
                     if i1[0] <= upper + 1:
                         if i1[1] > upper:
@@ -301,7 +301,7 @@ class IntervalSet (CSAObject):
                         N += 1 + upper - lower
                         (lower, upper) = i1
                     try:
-                        i1 = iter1.next ()
+                        i1 = next (iter1)
                     except StopIteration:
                         if i0[0] <= upper + 1:
                             if i0[1] > upper:
@@ -313,7 +313,7 @@ class IntervalSet (CSAObject):
                         while True:
                             res.append (i0)
                             N += 1 + i0[1] - i0[0]
-                            i0 = iter0.next ()
+                            i0 = next (iter0)
         except StopIteration:
             pass
         iset.intervals = res
@@ -346,12 +346,12 @@ class ComplementaryIntervalSet (IntervalSet):
         else:
             return '~IntervalSet(%r)' % self.intervals
 
-    def __nonzero__ (self):
+    def __bool__ (self):
         return True
 
-    def __len__ (self):
-        raise RuntimeError, 'ComplementaryIntervalSet has infinite length'
-    
+    # def __len__ (self):
+    #     raise RuntimeError ('ComplementaryIntervalSet has infinite length')
+ 
     def __contains__ (self, n):
         for i in self.intervals:
             if n < i[0]:
@@ -363,7 +363,7 @@ class ComplementaryIntervalSet (IntervalSet):
         return True
 
     def __iter__ (self):
-        raise RuntimeError, "can't interate over ComplementaryIntervalSet"
+        raise RuntimeError ("can't interate over ComplementaryIntervalSet")
 
     def __invert__ (self):
         return IntervalSet (intervals = self.intervals, \
@@ -387,20 +387,20 @@ class ComplementaryIntervalSet (IntervalSet):
         yield (start, infinity)
 
     def boundedIterator (self, low, high):
-        raise RuntimeError, "can't interate over ComplementaryIntervalSet"
+        raise RuntimeError ("can't interate over ComplementaryIntervalSet")
 
     def count (self, low, high):
         iterator = iter (self.intervals)
         c = 0
         prev = low
         try:
-            i = iterator.next ()
+            i = next (iterator)
             while i[1] < low:
-                i = iterator.next ()
+                i = next (iterator)
             while i[0] < high:
                 c += i[0] - prev
                 prev = i[1] + 1
-                i = iterator.next ()
+                i = next (iterator)
         except StopIteration:
             pass
         if prev < high:
@@ -414,7 +414,7 @@ class ComplementaryIntervalSet (IntervalSet):
             return self.intervals[0][1] + 1
 
     def max (self):
-        raise RuntimeError, 'the maximum of a ComplementaryIntervalSet is infinity'
+        raise RuntimeError ('the maximum of a ComplementaryIntervalSet is infinity')
 
     def intersection (self, other):
         if isinstance (other, ComplementaryIntervalSet):
