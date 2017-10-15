@@ -7,6 +7,9 @@ debdir = dist/csa-$(PACKAGE_VERSION)
 
 .PHONY: dist debian-source debian-package
 
+README: README.md
+	ln -s README.md README
+
 dist/csa-$(PACKAGE_VERSION).tar.gz:
 	python setup.py sdist
 
