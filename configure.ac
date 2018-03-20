@@ -81,6 +81,7 @@ AC_SUBST(LIBNEUROSIM_INCLUDE)
 
 AC_CONFIG_FILES([
   Makefile
+  csa/__init__.py
   libpycsa/Makefile
 ])
 
