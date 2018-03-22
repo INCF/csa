@@ -4,6 +4,17 @@ AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER([config.h])
 AM_MAINTAINER_MODE
 
+AC_MSG_CHECKING([library directory at])
+   eval pfx="/usr/local"
+   if test "${exec_prefix}" != "NONE" ; then
+      eval pfx="${exec_prefix}"
+   elif test "${prefix}" != "NONE" ; then
+      eval pfx="${prefix}"
+   fi
+   eval test -d `echo "$libdir" | sed "s,\\${exec_prefix},${pfx},"` &&
+   eval libdir="`echo "$libdir" | sed "s,\\${exec_prefix},${pfx},"`"
+AC_MSG_RESULT($libdir)
+
 #
 # Use libneurosim?
 #
