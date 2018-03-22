@@ -11,7 +11,6 @@ AC_MSG_CHECKING([library directory at])
    elif test "${prefix}" != "NONE" ; then
       eval pfx="${prefix}"
    fi
-   eval test -d `echo "$libdir" | sed "s,\\${exec_prefix},${pfx},"` &&
    eval libdir="`echo "$libdir" | sed "s,\\${exec_prefix},${pfx},"`"
 AC_MSG_RESULT($libdir)
 
