@@ -3,6 +3,8 @@ SUBDIRS = @LIBPYCSA_SUBDIR@
 PACKAGE_NAME = python-csa
 PACKAGE_VERSION = $(shell PYTHONPATH="@srcdir@/csa" python -c 'from version import __version__; print __version__')
 
+EXTRA_DIST = $(srcdir)/setup.py csa/*.py $(srcdir)/csa/*.py
+
 debdir = dist/csa-$(PACKAGE_VERSION)
 
 .PHONY: dist debian-source debian-package
@@ -29,4 +31,4 @@ install-exec-hook:
 	$(PYTHON) setup.py build --build-base=$(abs_builddir)/build install --prefix=$(DESTDIR)$(prefix) --install-lib=$(DESTDIR)$(pyexecdir) --install-scripts=$(DESTDIR)$(bindir) --install-data=$(DESTDIR)$(pkgdatadir)
 
 clean-local:
-	-rm -rf $(srcdir)/csa/*.pyc $(abs_builddir)/build
+	-rm -rf $(srcdir)/csa/*.pyc $(abs_builddir)/build tex.cache
