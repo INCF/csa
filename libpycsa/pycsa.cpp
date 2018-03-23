@@ -3,7 +3,7 @@
  *
  *  This file is part of libneurosim.
  *
- *  Copyright (C) 2013 INCF
+ *  Copyright (C) 2013, 2018 INCF
  *
  *  libneurosim is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,14 @@
 
 #include <string>
 #include <iostream>
+
+#if PY_MAJOR_VERSION >= 3
+#define PYINT_ASLONG PyLong_AsLong
+#define PYINT_FROMLONG PyLong_FromLong
+#else
+#define PYINT_ASLONG PyInt_AsLong
+#define PYINT_FROMLONG PyInt_FromLong
+#endif
 
 static PyObject* pMask = 0;
 static PyObject* pConnectionSet = 0;
@@ -124,7 +132,7 @@ namespace PyCSA {
     PYGILSTATE_ENSURE (gstate);
     Py_INCREF (pCSAObject);
     PyObject* a = PyObject_CallFunctionObjArgs (pArity, pCSAObject, NULL);
-    arity_ = PyInt_AsLong (a);
+    arity_ = PYINT_ASLONG (a);
     Py_DECREF (a);
     PYGILSTATE_RELEASE (gstate);
   }
@@ -156,8 +164,8 @@ namespace PyCSA {
 	for (IntervalSet::iterator i = iset.begin (); i != iset.end (); ++i)
 	  PyList_Append (ivals,
 			 PyTuple_Pack (2,
-				       PyInt_FromLong (i->first),
-				       PyInt_FromLong (i->last)));
+				       PYINT_FROMLONG (i->first),
+				       PYINT_FROMLONG (i->last)));
       }
     else
       {
@@ -167,8 +175,8 @@ namespace PyCSA {
 	    for (int j = i->first; j < last; j += iset.skip ())
 	      PyList_Append (ivals,
 			     PyTuple_Pack (2,
-					   PyInt_FromLong (j),
-					   PyInt_FromLong (j)));
+					   PYINT_FROMLONG (j),
+					   PYINT_FROMLONG (j)));
 	  }
       }
     return ivals;
@@ -194,7 +202,7 @@ namespace PyCSA {
     pPartitionedCSAObject = PyObject_CallFunctionObjArgs (pPartition,
 							  pCSAObject,
 							  pMasks,
-							  PyInt_FromLong (local),
+							  PYINT_FROMLONG (local),
 							  NULL);
     if (pPartitionedCSAObject == NULL)
       {
@@ -258,8 +266,8 @@ namespace PyCSA {
 	return false;
       }
 
-    source = PyInt_AsLong (PyTuple_GET_ITEM (tuple, 0));
-    target = PyInt_AsLong (PyTuple_GET_ITEM (tuple, 1));
+    source = PYINT_ASLONG (PyTuple_GET_ITEM (tuple, 0));
+    target = PYINT_ASLONG (PyTuple_GET_ITEM (tuple, 1));
     for (int i = 0; i < arity_; ++i)
       {
 	PyObject* v = PyTuple_GET_ITEM (tuple, i + 2);
@@ -311,7 +319,7 @@ namespace PyCSA {
     if (!tryLoadCSA ())
       return 0;
     PYGILSTATE_ENSURE (gstate);
-    PyObject* pyXML = PyString_FromString (xml.c_str ());
+    PyObject* pyXML = PyUnicode_FromString (xml.c_str ());
     PyObject* cg = PyObject_CallFunctionObjArgs (pParseString, pyXML, NULL);
     Py_DECREF (pyXML);
     PYGILSTATE_RELEASE (gstate);
@@ -324,7 +332,7 @@ namespace PyCSA {
     if (!tryLoadCSA ())
       return 0;
     PYGILSTATE_ENSURE (gstate);
-    PyObject* pyfname = PyString_FromString (fname.c_str ());
+    PyObject* pyfname = PyUnicode_FromString (fname.c_str ());
     PyObject* cg = PyObject_CallFunctionObjArgs (pParseString, pyfname, NULL);
     Py_DECREF (pyfname);
     PYGILSTATE_RELEASE (gstate);

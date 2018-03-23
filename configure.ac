@@ -51,6 +51,11 @@ AS_IF([test "x$with_python" != "xno"],
 AS_IF([test "x$have_python" = "xyes"], [
     PYTHON_INC=`$PYTHON -c 'import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_inc())'`
     AC_CHECK_FILE(["${PYTHON_INC}/Python.h"], [LIBPYCSA_CPPFLAGS="-I${PYTHON_INC}"], [have_python=no])
+    PYTHONLIB=""
+    AC_CHECK_LIB(python${am_cv_python_version}m,PyArg_ParseTuple,
+                 [PYTHONLIB=-lpython${am_cv_python_version}m],
+		 [AC_CHECK_LIB(python${am_cv_python_version},PyArg_ParseTuple,
+		               [PYTHONLIB=-lpython${am_cv_python_version}])])
 ])
 
 AC_MSG_CHECKING([whether to build libpycsa])
@@ -75,7 +80,7 @@ AC_SUBST([HAVE_PYTHON])
 AC_SUBST([LIBPYCSA_SUBDIR])
 
 AC_SUBST([PYTHON])
-AC_SUBST([PYTHON_VERSION])
+AC_SUBST([PYTHONLIB])
 
 AC_SUBST([LIBPYCSA_CPPFLAGS])
 AC_SUBST([LIBPYCSA_CXXFLAGS])
