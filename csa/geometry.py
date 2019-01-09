@@ -1,6 +1,6 @@
 #
 #  This file is part of the Connection-Set Algebra (CSA).
-#  Copyright (C) 2010,2011,2012 Mikael Djurfeldt
+#  Copyright (C) 2010,2011,2012,2019 Mikael Djurfeldt
 #
 #  CSA is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ def grid2d (width, xScale = 1.0, yScale = 1.0, x0 = 0.0, y0 = 0.0):
     xScale /= width
     yScale /= width
     g = lambda i: \
-        (x0 + xScale * (i % width), y0 + yScale * (i / width))
+        (x0 + xScale * (i % width), y0 + yScale * (i // width))
     g.type = 'grid'
     g.width = width
     g.xScale = xScale
