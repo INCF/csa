@@ -1,6 +1,6 @@
 #
 #  This file is part of the Connection-Set Algebra (CSA).
-#  Copyright (C) 2010,2011,2012 Mikael Djurfeldt
+#  Copyright (C) 2010,2011,2012,2019 Mikael Djurfeldt
 #
 #  CSA is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -174,10 +174,10 @@ class BlockMask (cs.Mask):
         return self
 
     def iterator (self, low0, high0, low1, high1, state):
-        maskIter =  self.obj.iterator (low0 / self.M,
-                                       (high0 + self.M - 1) / self.M,
-                                       low1 / self.N,
-                                       (high1 + self.N - 1) / self.N,
+        maskIter =  self.obj.iterator (low0 // self.M,
+                                       (high0 + self.M - 1) // self.M,
+                                       low1 // self.N,
+                                       (high1 + self.N - 1) // self.N,
                                        state)
         try:
             pre = []
