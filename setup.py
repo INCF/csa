@@ -9,7 +9,7 @@ os.environ['MPLCONFIGDIR'] = "."
 
 # read version without actually importing the module
 import ast
-__version__ = ast.parse(open("csa/version.py").read()).body[0].value.s
+__version__ = ast.parse (open ("csa/version.py").read ()).body[0].value.s
 
 long_description = """The CSA library provides elementary connection-sets and operators for
 combining them. It also provides an iteration interface to such
