@@ -7,7 +7,9 @@ from distutils.core import setup
 import os
 os.environ['MPLCONFIGDIR'] = "."
 
-from csa.version import __version__
+# read version without actually importing the module
+import ast
+__version__ = ast.parse (open ("csa/version.py").read ()).body[0].value.s
 
 long_description = """The CSA library provides elementary connection-sets and operators for
 combining them. It also provides an iteration interface to such
@@ -38,5 +40,5 @@ setup (
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
                    'Topic :: Scientific/Engineering'],
-    requires = ['numpy', 'matplotlib'],
+    install_requires = ['numpy', 'matplotlib'],
 )
