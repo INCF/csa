@@ -13,7 +13,7 @@ README: $(srcdir)/README.md
 	ln -s $(srcdir)/README.md README
 
 dist/csa-$(PACKAGE_VERSION).tar.gz:
-	python setup.py sdist
+	$(PYTHON) setup.py sdist
 
 debian-source: dist/csa-$(PACKAGE_VERSION).tar.gz
 	@test ! -e $(debdir) || ( echo "*** Remove directory dist/csa-${PACKAGE_VERSION}" && exit 1 )

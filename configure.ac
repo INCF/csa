@@ -45,7 +45,9 @@ AC_ARG_WITH([python],
     [AS_HELP_STRING([--without-python], [ignore the presence of Python and disable libpycsa])])
 
 AS_IF([test "x$with_python" != "xno"],
-      [AM_PATH_PYTHON([2.6], [have_python=yes], [have_python=no])],
+      [AS_IF([test "x$with_python" != "xyes"],
+             [PYTHON="$with_python"])
+       AM_PATH_PYTHON([2.6], [have_python=yes], [have_python=no])],
       [have_python=no])
 
 AS_IF([test "x$have_python" = "xyes"], [

@@ -2,19 +2,19 @@ Source: python-csa
 Section: python
 Priority: optional
 Maintainer: Mikael Djurfeldt <mdj@debian.org>
-Build-Depends: debhelper (>= 7.0.50~)
- , python-support (>= 0.90.0~)
- , python-setuptools
- , python-all
- , python-nose
- , python-numpy
- , python-matplotlib
-Standards-Version: 3.9.3
-Homepage: http://software.incf.org/software/csa
+Build-Depends: debhelper (>= 10)
+ , dh-python
+ , python3-setuptools
+ , python3-all
+ , python3-nose
+ , python3-numpy
+ , python3-matplotlib
+Standards-Version: 4.4.1
+Homepage: https://github.com/INCF/csa
 
-Package: python-csa
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-numpy, python-matplotlib
+Package: python3-csa
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-numpy, python3-matplotlib
 Description: Connection-Set Algebra (CSA) implemented in Python
  The CSA library provides elementary connection-sets and operators for
  combining them. It also provides an iteration interface to such

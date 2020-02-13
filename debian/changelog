@@ -1,3 +1,9 @@
+python-csa (0.1.10-1) unstable; urgency=medium
+
+  * New upstream version
+
+ -- Mikael Djurfeldt <mdj@debian.org>  Wed, 22 Jan 2020 21:23:37 +0100
+
 python-csa (0.1.0-1) unstable; urgency=low
 
   * New upstream version (Closes: #597299)
