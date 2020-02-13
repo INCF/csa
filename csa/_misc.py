@@ -1,6 +1,6 @@
 #
 #  This file is part of the Connection-Set Algebra (CSA).
-#  Copyright (C) 2010,2011,2012,2019 Mikael Djurfeldt
+#  Copyright (C) 2010,2011,2012,2019,2020 Mikael Djurfeldt
 #
 #  CSA is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -233,36 +233,39 @@ class RepeatMask (cs.Mask):
         self.m = mask
 
     def iterator (self, low0, high0, low1, high1, state):
-        jj = low1
-        nextHigh1 = (low1 + self.N) / self.N * self.N
-        while nextHigh1 <= high1:
-            maskIter =  self.m.iterator (0,
-                                         self.M,
-                                         0,
-                                         self.N,
-                                         state)
-            try:
-                (i, j) = next (maskIter)
-                post = j
-                while post < self.N:
-                    pre = []
-                    while j == post:
-                        pre.append (i)
-                        (i, j) = next (maskIter)
+        try:
+            jj = low1
+            nextHigh1 = (low1 + self.N) / self.N * self.N
+            while nextHigh1 <= high1:
+                maskIter =  self.m.iterator (0,
+                                             self.M,
+                                             0,
+                                             self.N,
+                                             state)
+                try:
+                    (i, j) = next (maskIter)
+                    post = j
+                    while post < self.N:
+                        pre = []
+                        while j == post:
+                            pre.append (i)
+                            (i, j) = next (maskIter)
+                        ii = low0
+                        while ii < high0:
+                            for k in pre:
+                                yield (ii + k, jj + post)
+                            ii += self.M
+                        post = j
+                except StopIteration:
                     ii = low0
                     while ii < high0:
                         for k in pre:
                             yield (ii + k, jj + post)
                         ii += self.M
-                    post = j
-            except StopIteration:
-                ii = low0
-                while ii < high0:
-                    for k in pre:
-                        yield (ii + k, jj + post)
-                    ii += self.M
-            jj = nextHigh1
-            nextHigh1 += self.N
+                jj = nextHigh1
+                nextHigh1 += self.N
+        except StopIteration:
+            return
 
 
 class Transpose (cs.Operator):

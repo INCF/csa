@@ -1,6 +1,6 @@
 #
 #  This file is part of the Connection-Set Algebra (CSA).
-#  Copyright (C) 2010,2011,2012 Mikael Djurfeldt
+#  Copyright (C) 2010,2011,2012,2020 Mikael Djurfeldt
 #
 #  CSA is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -171,13 +171,17 @@ class IntervalSet (CSAObject):
 
     def boundedIterator (self, low, high):
         iterator = iter (self.intervals)
-        i = next (iterator)
-        while i[1] < low:
+        try:
             i = next (iterator)
-        while i[0] < high:
-            for e in range (max (low, i[0]), min (i[1] + 1, high)):
-                yield e
-            i = next (iterator)
+            while i[1] < low:
+                i = next (iterator)
+            while i[0] < high:
+                for e in range (max (low, i[0]), min (i[1] + 1, high)):
+                    yield e
+                i = next (iterator)
+        except StopIteration:
+            return
+
 
     def count (self, low, high):
         iterator = iter (self.intervals)
