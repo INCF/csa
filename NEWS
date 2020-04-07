@@ -4,6 +4,13 @@ Copyright (C) 2012, 2018, 2020 Mikael Djurfeldt
 Please send CSA bug reports to mikael@djurfeldt.com.
 
 
+Changes in 0.1.12:
+
+* Bug fixes
+
+Adapt to change in iterator behavior (PEP-0479).
+
+
 Changes in 0.1.10:
 
 * Build Debian package for Python3
