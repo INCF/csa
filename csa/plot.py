@@ -1,6 +1,6 @@
 #
 #  This file is part of the Connection-Set Algebra (CSA).
-#  Copyright (C) 2010,2011,2012 Mikael Djurfeldt
+#  Copyright (C) 2010,2011,2012,2022 Mikael Djurfeldt
 #
 #  CSA is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ def show (cset, N0 = 30, N1 = None):
     a = _numpy.zeros ((N0, N1))
     for (i, j) in elementary.cross (range (N0), range (N1)) * cset:
         a[i,j] += 1.0
-    _plt.imshow (a, interpolation='nearest')
+    _plt.imshow (a, interpolation='nearest', vmin = 0.0, vmax = 1.0)
     _plt.show ()
 
 def gplotsel2d (g, cset, source = elementary.N, target = elementary.N, N0 = 900, N1 = None, value = None, range=[], lines = True):
