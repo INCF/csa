@@ -8,8 +8,17 @@ import os
 os.environ['MPLCONFIGDIR'] = "."
 
 # read version without actually importing the module
-import ast
-__version__ = ast.parse (open ("csa/version.py").read ()).body[0].value.s
+import re
+from pathlib import Path
+
+def read_version(path: str) -> str:
+    text = Path(path).read_text(encoding="utf-8")
+    m = re.search(r"^__version__\s*=\s*\"(.+?)\"", text, flags=re.M)
+    if not m:
+        raise RuntimeError(f"Unable to find __version__ in {path}")
+    return m.group(1)
+
+__version__ = read_version("csa/version.py")
 
 long_description = """The CSA library provides elementary connection-sets and operators for
 combining them. It also provides an iteration interface to such
@@ -26,6 +35,7 @@ setup (
     author_email = "mikael@djurfeldt.com",
     description = "The Connection-Set Algebra implemented in Python",
     long_description = long_description,
+    #...
     license = "GPLv3",
     keywords = "computational neuroscience modeling connectivity",
     url = "http://software.incf.org/software/csa/",
