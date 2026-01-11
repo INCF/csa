@@ -1,7 +1,7 @@
 SUBDIRS = @LIBPYCSA_SUBDIR@
 
 PACKAGE_NAME = python-csa
-PACKAGE_VERSION = $(shell PYTHONPATH="@srcdir@/csa" python -c 'from version import __version__; print __version__')
+PACKAGE_VERSION = $(shell PYTHONPATH="@srcdir@/csa" python3 -c 'from version import __version__; print (__version__)')
 
 EXTRA_DIST = $(srcdir)/setup.py csa/*.py $(srcdir)/csa/*.py
 
