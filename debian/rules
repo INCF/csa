@@ -1,15 +1,15 @@
 #!/usr/bin/make -f
 
-override_dh_auto_test:
-ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
-	set -e; \
-	for python in $(shell pyversions -r); do \
-		$$python /usr/bin/nosetests ../../tests/test_csa.py; \
-	done
-endif
+#override_dh_auto_test:
+#ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+#	set -e; \
+#	for python in $(shell pyversions -r); do \
+#		$$python /usr/bin/nosetests ../../tests/test_csa.py; \
+#	done
+#endif
 
 %:
-	dh $@ --with python3 --buildsystem=pybuild
+	dh $@ --buildsystem=pybuild
 
-#override_dh_auto_configure:
-#	dh_auto_configure -- --enable-deb --with-python=python3
+override_dh_auto_test:
+	echo "Tests are missing from latest tarball"

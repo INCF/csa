@@ -1,3 +1,32 @@
+python-csa (0.1.13-1) unstable; urgency=high
+
+  * New upstream version (Closes: #1122462)
+
+ -- Mikael Djurfeldt <mdj@debian.org>  Sun, 11 Jan 2026 21:43:54 +0200
+
+python-csa (0.1.12-1.3) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Temporary disable missing tests.
+
+ -- Alexandre Detiste <tchet@debian.org>  Thu, 12 Sep 2024 17:07:46 +0200
+
+python-csa (0.1.12-1.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add a watch file that follows GitHub tarball that contains tests.
+  * Switch to DebHelper 13
+  * Replace Nose with Pytest (Closes: #1018475)
+
+ -- Alexandre Detiste <tchet@debian.org>  Thu, 12 Sep 2024 16:19:55 +0200
+
+python-csa (0.1.12-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Source-only upload. (Closes: #952499)
+
+ -- Carlos Henrique Lima Melara <charlesmelara@outlook.com>  Mon, 08 Jun 2020 23:31:08 -0300
+
 python-csa (0.1.12-1) unstable; urgency=medium
 
   * New upstream version
