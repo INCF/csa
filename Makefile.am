@@ -23,7 +23,7 @@ debian-source: dist/csa-$(PACKAGE_VERSION).tar.gz
 	cp -pr debian $(debdir)
 
 debian-package: debian-source
-	( cd $(debdir) && dpkg-buildpackage '-mMikael Djurfeldt <mdj@debian.org>' -rfakeroot && cd ../.. && rm -rf $(debdir) )
+	( cd $(debdir) && dpkg-buildpackage '-mMikael Djurfeldt <mdj@debian.org>' -rfakeroot --changes-option=-S -sa && cd ../.. && rm -rf $(debdir) )
 
 install-exec-hook:
 	cd $(srcdir) &&\
