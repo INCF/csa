@@ -242,3 +242,28 @@ Again, we use gplotsel2d to check the result:
 
     gplotsel2d (g2, c, 282)
 
+
+## Installation on Windows (Anaconda)
+
+If you are using Windows or Anaconda, you may face a permissions error when running:  ```pip install .```
+
+
+To avoid this, install using: ```python -m pip install .```
+
+
+This ensures pip runs with the correct Python interpreter.
+
+If the issue continues, create a virtual environment:  
+```python -m venv venv```
+```venv\Scripts\activate```
+```python -m pip install .```
+
+
+These steps were tested on Windows 10/11 and resolve the installation problem.
+
+
+
+
+
+
+
