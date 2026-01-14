@@ -1,5 +1,9 @@
 Checklist for a release:
 
+Preparations:
+
+* Make sure that DEBEMAIL and DEBFULLNAME are setup
+
 * Install packages:
 
 dpkg-dev
@@ -7,13 +11,16 @@ dpkg-dev-el
 dh-python
 lintian
 debhelper
+python-is-python3
 python3-setuptools
 python3-all
 python3-pytest
 python3-numpy
 python3-matplotlib
 
-* csa/version.py
+* Update csa/version.py
+
+Debian:
 
 * (optional) debian/changelog
 
@@ -24,6 +31,21 @@ python3-matplotlib
 * lintian -i python-csa_x.y.z-n_ARCH.changes
 
 * dupload python-csa_x.y.z-n_ARCH.changes
+
+PYPI:
+
+* Install:
+
+python3-build
+twine
+
+* python3 -m build --sdist
+
+* python3 -m build --wheel
+
+* twine upload dist/csa-x.y.z.tar.gz dist/csa-x.y.z-py3-none-any.whl
+
+Updating git repository:
 
 * stage changes
 
