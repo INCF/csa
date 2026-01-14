@@ -16,14 +16,25 @@ dist/csa-$(PACKAGE_VERSION).tar.gz:
 	$(PYTHON) setup.py sdist
 
 debian-source: dist/csa-$(PACKAGE_VERSION).tar.gz
-	@test ! -e $(debdir) || ( echo "*** Remove directory dist/csa-${PACKAGE_VERSION}" && exit 1 )
+# Catch the DEBEMAIL/FULLNAME problem early
+# (debian-source is a dependency of debian-package)
+	@if [ -z "$$DEBEMAIL" -o -z "$$DEBFULLNAME" ]; then \
+		echo "*** Please define DEBEMAIL and DEBFULLNAME"; \
+		exit 1; \
+	fi
+	@test ! -e $(debdir) || ( echo "*** Please remove directory dist/csa-${PACKAGE_VERSION}" && exit 1 )
 	cp -p dist/csa-$(PACKAGE_VERSION).tar.gz dist/$(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz
 	( cd dist; tar zxf $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.gz )
 	mkdir $(debdir)/debian
 	cp -pr debian $(debdir)
 
+# dpkg-buildpackage relies on the environment variables DEBEMAIL and DEBFULLNAME
 debian-package: debian-source
-	( cd $(debdir) && dpkg-buildpackage '-mMikael Djurfeldt <mdj@debian.org>' -rfakeroot --changes-option=-S -sa && cd ../.. && rm -rf $(debdir) )
+	@if [ -z "$$DEBEMAIL" -o -z "$$DEBFULLNAME" ]; then \
+		echo "*** Please define DEBEMAIL and DEBFULLNAME"; \
+		exit 1; \
+	fi
+	( cd $(debdir) && dpkg-buildpackage -rfakeroot --changes-option=-S -sa && cd ../.. && rm -rf $(debdir) )
 
 install-exec-hook:
 	cd $(srcdir) &&\
